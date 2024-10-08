@@ -1,12 +1,9 @@
-import React from 'react';
-import LoginForm from './components/LoginForm'; // adjust the path as needed
+import React from 'react'
 
-function App() {
+const App = () => {
   return (
-    <div>
-      <LoginForm />
-    </div>
-  );
+    <div>Hello</div>
+  )
 }
 
-export default App;
+export default App
