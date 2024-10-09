@@ -1,8 +1,9 @@
 import React from 'react'
+import Signup from './pages/Register/Signup'
 
 const App = () => {
   return (
-    <div>The bionicle</div>
+    <div><Signup/></div>
   )
 }
 
