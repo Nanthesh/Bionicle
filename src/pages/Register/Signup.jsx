@@ -34,6 +34,7 @@ const Signup = () => {
           required
           id="outlined-required"
           label="Email"
+          
         />
         <FormControl sx={{ m: 1, width:'25ch' }} variant="outlined">
           <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
