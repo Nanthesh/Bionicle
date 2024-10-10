@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
@@ -10,56 +10,256 @@ import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
-const Signup = () => {
-    
-        const [showPassword, setShowPassword] = React.useState(false);
-      
-        const handleClickShowPassword = () => setShowPassword((show) => !show);
-      
-        const handleMouseDownPassword = (event) => {
-          event.preventDefault();
-        };
-      
-        const handleMouseUpPassword = (event) => {
-          event.preventDefault();
-        };
-      
-  return (
-    <Box>
-    <Card>
-        <Typography variant="h3">
-        Sign up 
-      </Typography>
-      <TextField
-          required
-          id="outlined-required"
-          label="Email"
-          
-        />
-        <FormControl sx={{ m: 1, width:'25ch' }} variant="outlined">
-          <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-          <OutlinedInput
-            id="outlined-adornment-password"
-            type={showPassword ? 'text' : 'password'}
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={handleClickShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                  onMouseUp={handleMouseUpPassword}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                </IconButton>
-              </InputAdornment>
-            }
-            label="Password"
-          />
-        </FormControl>
-    </Card>
-    </Box>
-  )
-}
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import Logo from "../../assets/Logo.jpeg";
+import Footer from '../../components/Footer';
+import { Button, Checkbox, FormControlLabel } from '@mui/material';
 
-export default Signup
+const Signup = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formValues, setFormValues] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phoneNumber: '',
+    agreeToTerms: false,
+  });
+  const [formErrors, setFormErrors] = useState({});
+  
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleClickShowConfirmPassword = () => setShowConfirmPassword((show) => !show);
+  
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, checked, type } = e.target;
+    setFormValues({
+      ...formValues,
+      [name]: type === 'checkbox' ? checked : value,
+    });
+  };
+
+  const validate = () => {
+    let errors = {};
+    if (!formValues.username) errors.username = "Username is required";
+    if (!formValues.email) errors.email = "Email is required";
+    if (!/\S+@\S+\.\S+/.test(formValues.email)) errors.email = "Email address is invalid";
+    if (!formValues.password) errors.password = "Password is required";
+    if (formValues.password !== formValues.confirmPassword) errors.confirmPassword = "Passwords do not match";
+    if (!formValues.phoneNumber) errors.phoneNumber = "Phone number is required";
+    if (!formValues.agreeToTerms) errors.agreeToTerms = "You must agree to the terms and conditions";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validate()) {
+      console.log('Form submitted successfully:', formValues);
+    }
+  };
+
+  const handleGoogleSuccess = (response) => {
+    console.log('Google login successful:', response);
+  };
+
+  const handleGoogleFailure = (error) => {
+    console.log('Google login failed:', error);
+  };
+
+  return (
+    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+        flexDirection="column"
+        bgcolor="#f4f4f9"
+      >
+        <Card
+          sx={{
+            p: 4,
+            boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.15)',
+            maxWidth: 400,
+            width: '100%',
+            background: 'linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%)',
+            borderRadius: '15px',
+            mt:1,
+          }}
+        >
+          <Box display="flex" justifyContent="center" mb={3}>
+            <img
+              src={Logo}
+              alt="Logo"
+              style={{
+                width: '100px',
+                height: '100px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+              }}
+            />
+          </Box>
+
+          <Typography
+            variant="h3"
+            align="center"
+            gutterBottom
+            sx={{
+              fontSize: '2rem',
+              fontWeight: 'bold',
+              color: '#1976d2',
+              textTransform: 'uppercase',
+              letterSpacing: '2px',
+            }}
+          >
+            Sign up
+          </Typography>
+
+          <form onSubmit={handleSubmit}>
+            <TextField
+              required
+              id="outlined-username"
+              label="Username"
+              name="username"
+              fullWidth
+              margin="normal"
+              value={formValues.username}
+              onChange={handleInputChange}
+              error={!!formErrors.username}
+              helperText={formErrors.username}
+            />
+
+            <TextField
+              required
+              id="outlined-email"
+              label="Email"
+              name="email"
+              fullWidth
+              margin="normal"
+              value={formValues.email}
+              onChange={handleInputChange}
+              error={!!formErrors.email}
+              helperText={formErrors.email}
+            />
+
+            <FormControl fullWidth variant="outlined" margin="normal" error={!!formErrors.password}>
+              <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                value={formValues.password}
+                onChange={handleInputChange}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                label="Password"
+              />
+              {formErrors.password && (
+                <Typography variant="caption" color="error">
+                  {formErrors.password}
+                </Typography>
+              )}
+            </FormControl>
+
+            <FormControl fullWidth variant="outlined" margin="normal" error={!!formErrors.confirmPassword}>
+              <InputLabel htmlFor="outlined-adornment-confirm-password">
+                Confirm Password
+              </InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-confirm-password"
+                name="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={formValues.confirmPassword}
+                onChange={handleInputChange}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={handleClickShowConfirmPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                label="Confirm Password"
+              />
+              {formErrors.confirmPassword && (
+                <Typography variant="caption" color="error">
+                  {formErrors.confirmPassword}
+                </Typography>
+              )}
+            </FormControl>
+
+            <TextField
+              required
+              id="outlined-phone"
+              label="Phone Number"
+              name="phoneNumber"
+              fullWidth
+              margin="normal"
+              value={formValues.phoneNumber}
+              onChange={handleInputChange}
+              error={!!formErrors.phoneNumber}
+              helperText={formErrors.phoneNumber}
+            />
+
+            <Box display="flex" justifyContent="center" textAlign="center">
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formValues.agreeToTerms}
+                    onChange={handleInputChange}
+                    name="agreeToTerms"
+                  />
+                }
+                label="I agree to the Terms and Conditions"
+              />
+            </Box>
+            {formErrors.agreeToTerms && (
+              <Typography variant="caption" color="error" textAlign="center">
+                {formErrors.agreeToTerms}
+              </Typography>
+            )}
+
+            <Box textAlign="center" mt={2}>
+              <Button type="submit" variant="contained" fullWidth style={{ padding: '10px 20px', cursor: 'pointer' }}>
+                Submit
+              </Button>
+            </Box>
+          </form>
+
+          <Box textAlign="center" mt={2}sx={{borderRadius:"15px"}}>
+            <Typography variant="body2">or continue with:</Typography>
+          </Box>
+
+          <Box textAlign="center" mt={2}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleFailure}
+            />
+          </Box>
+        </Card>
+        <Footer />
+      </Box>
+    </GoogleOAuthProvider>
+  );
+};
+
+export default Signup;
