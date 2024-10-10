@@ -1,15 +1,18 @@
 const mongoose = require('mongoose');
-const { mongoURI } = require('../config/db.conf');
+const dotenv = require('dotenv');
 
-// Function to connect to MongoDB
+// Load environment variables
+dotenv.config();
+
+// Connect to MongoDB
 const connectMongoDB = async () => {
   try {
-    await mongoose.connect(mongoURI);  // No options needed for newer MongoDB drivers
-    console.log('MongoDB connected successfully');
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('MongoDB connected');
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error.message);
-    process.exit(1); // Exit process if unable to connect to DB
+    console.error('Error connecting to MongoDB:', error);
+    process.exit(1);
   }
 };
 
-module.exports = connectMongoDB;
+module.exports = connectMongoDB; 
