@@ -354,7 +354,7 @@ const Signup = () => {
                   },
                 }}
               >
-                Register
+               Login 
               </Button>
             </Box>
           </form>
