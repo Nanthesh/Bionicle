@@ -72,7 +72,7 @@ const Signup = () => {
   };
 
   return (
-    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+    <GoogleOAuthProvider clientId="324740845093-2fijp594fabl35q9289abg9tnjcajnqk.apps.googleusercontent.com">
       <Box
         display="flex"
         justifyContent="center"
@@ -132,6 +132,24 @@ const Signup = () => {
               onChange={handleInputChange}
               error={!!formErrors.username}
               helperText={formErrors.username}
+              sx={{
+                borderRadius: '50px',  // Rounded corners
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px', // Rounded corners for input
+                },
+                '& .MuiInputLabel-root': {
+                  fontSize: '1.1rem',  // Adjust font size for label
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#5D3FD3',  // Color of the border
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#4b2fc4',  // Hover color of the border
+                },
+                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#5D3FD3',  // Focus color of the border
+                },
+              }}
             />
 
             <TextField
@@ -145,6 +163,24 @@ const Signup = () => {
               onChange={handleInputChange}
               error={!!formErrors.email}
               helperText={formErrors.email}
+              sx={{
+                borderRadius: '50px',  // Rounded corners
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px', // Rounded corners for input
+                },
+                '& .MuiInputLabel-root': {
+                  fontSize: '1.1rem',  // Adjust font size for label
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#5D3FD3',  // Color of the border
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#4b2fc4',  // Hover color of the border
+                },
+                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#5D3FD3',  // Focus color of the border
+                },
+              }}
             />
 
             <FormControl fullWidth variant="outlined" margin="normal" error={!!formErrors.password}>
@@ -168,6 +204,24 @@ const Signup = () => {
                   </InputAdornment>
                 }
                 label="Password"
+                sx={{
+                  borderRadius: '50px',  // Rounded corners
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '50px', // Rounded corners for input
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: '1.1rem',  // Adjust font size for label
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#5D3FD3',  // Color of the border
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#4b2fc4',  // Hover color of the border
+                  },
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#5D3FD3',  // Focus color of the border
+                  },
+                }}
               />
               {formErrors.password && (
                 <Typography variant="caption" color="error">
@@ -199,6 +253,24 @@ const Signup = () => {
                   </InputAdornment>
                 }
                 label="Confirm Password"
+                sx={{
+                  borderRadius: '50px',  // Rounded corners
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '50px', // Rounded corners for input
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: '1.1rem',  // Adjust font size for label
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#5D3FD3',  // Color of the border
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#4b2fc4',  // Hover color of the border
+                  },
+                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#5D3FD3',  // Focus color of the border
+                  },
+                }}
               />
               {formErrors.confirmPassword && (
                 <Typography variant="caption" color="error">
@@ -218,6 +290,24 @@ const Signup = () => {
               onChange={handleInputChange}
               error={!!formErrors.phoneNumber}
               helperText={formErrors.phoneNumber}
+              sx={{
+                borderRadius: '50px',  // Rounded corners
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px', // Rounded corners for input
+                },
+                '& .MuiInputLabel-root': {
+                  fontSize: '1.1rem',  // Adjust font size for label
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#5D3FD3',  // Color of the border
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#4b2fc4',  // Hover color of the border
+                },
+                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#5D3FD3',  // Focus color of the border
+                },
+              }}
             />
 
             <Box display="flex" justifyContent="center" textAlign="center">
@@ -239,7 +329,25 @@ const Signup = () => {
             )}
 
             <Box textAlign="center" mt={2}>
-              <Button type="submit" variant="contained" fullWidth style={{ padding: '10px 20px', cursor: 'pointer' }}>
+              <Button type="submit" variant="contained" fullWidth style={{ padding: '10px 20px', cursor: 'pointer' }}
+              sx={{
+                borderRadius: '50px',  // Rounded corners
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px', // Rounded corners for input
+                },
+                '& .MuiInputLabel-root': {
+                  fontSize: '1.1rem',  // Adjust font size for label
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#5D3FD3',  // Color of the border
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#4b2fc4',  // Hover color of the border
+                },
+                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#5D3FD3',  // Focus color of the border
+                },
+              }}>
                 Submit
               </Button>
             </Box>
@@ -253,6 +361,7 @@ const Signup = () => {
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleFailure}
+
             />
           </Box>
         </Card>
