@@ -328,27 +328,33 @@ const Signup = () => {
               </Typography>
             )}
 
-            <Box textAlign="center" mt={2}>
-              <Button type="submit" variant="contained" fullWidth style={{ padding: '10px 20px', cursor: 'pointer' }}
-              sx={{
-                borderRadius: '50px',  // Rounded corners
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '50px', // Rounded corners for input
-                },
-                '& .MuiInputLabel-root': {
-                  fontSize: '1.1rem',  // Adjust font size for label
-                },
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#5D3FD3',  // Color of the border
-                },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#4b2fc4',  // Hover color of the border
-                },
-                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#5D3FD3',  // Focus color of the border
-                },
-              }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Button type="submit" variant="contained" 
+            sx={{
+              backgroundColor: '#5D3FD3',
+              borderRadius: '50px', // Rounded edges
+              paddingX: 4, // Horizontal padding
+              paddingY: 1,  // Vertical padding
+              ':hover': {
+                backgroundColor: '#4b2fc4', // Hover color
+              },
+            }}>
                 Submit
+              </Button>
+              <Button
+                href="/register"
+                variant="contained"
+                sx={{
+                  backgroundColor: '#4A4458',
+                  borderRadius: '50px', // Rounded edges
+                  paddingX: 4, // Horizontal padding
+                  paddingY: 1,  // Vertical padding
+                  ':hover': {
+                    backgroundColor: '#3b3748', // Hover color
+                  },
+                }}
+              >
+                Register
               </Button>
             </Box>
           </form>
