@@ -10,10 +10,10 @@ import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import Logo from "../../assets/Logo.jpeg";
 import Footer from '../../components/Footer';
 import { Button, Checkbox, FormControlLabel } from '@mui/material';
+import {signInWithGooglePopup} from "../../firebase.util"
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -63,16 +63,13 @@ const Signup = () => {
     }
   };
 
-  const handleGoogleSuccess = (response) => {
-    console.log('Google login successful:', response);
-  };
+  const logGoogleUser = async () => {
+    const response = await signInWithGooglePopup();
+    console.log(response);
+}
 
-  const handleGoogleFailure = (error) => {
-    console.log('Google login failed:', error);
-  };
 
   return (
-    <GoogleOAuthProvider clientId="324740845093-2fijp594fabl35q9289abg9tnjcajnqk.apps.googleusercontent.com">
       <Box
         display="flex"
         justifyContent="center"
@@ -362,18 +359,13 @@ const Signup = () => {
           <Box textAlign="center" mt={2}sx={{borderRadius:"15px"}}>
             <Typography variant="body2">or continue with:</Typography>
           </Box>
-
-          <Box textAlign="center" mt={2}>
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleFailure}
-
-            />
-          </Box>
+                <Button onClick={logGoogleUser}>
+                  Sign in with google 
+                </Button>
+          
         </Card>
         <Footer />
       </Box>
-    </GoogleOAuthProvider>
   );
 };
 
