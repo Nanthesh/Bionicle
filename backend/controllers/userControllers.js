@@ -5,15 +5,17 @@ const createUserControllerFunc = async (req, res) => {
     console.log(req.body);
 
     // Call the service to create the user in the database
-    const status = await userService.createUserDBService(req.body);
+    const result = await userService.createUserDBService(req.body);
 
-    console.log(status);
+    console.log(result);
     console.log("****************");
 
-    if (status) {
+    if (result) {
       res.status(200).send({
         status: true,
         message: "User registered successfully",
+        token: result.token,
+        
       });
     } else {
       res.status(400).send({
@@ -21,6 +23,8 @@ const createUserControllerFunc = async (req, res) => {
         message: "Error creating user",
       });
     }
+    console.log("Token", token);
+    
   } catch (err) {
     console.log(err);
 
@@ -32,7 +36,21 @@ const createUserControllerFunc = async (req, res) => {
   }
 };
 
+const loginUserControllerFunc = async (req, res) => {
+    try {
+        const result = await userService.loginUserDBService(req.body.email, req.body.password);
+        res.status(200).send({
+            status: true,
+            message: "User logged in successfully",
+            token: result.token
+        });
+    } catch (error) {
+        res.status(400).send({ status: false, message: error.message });
+    }
+};
+
 //  export the function
 module.exports = {
   createUserControllerFunc,
+  loginUserControllerFunc
 };

@@ -1,5 +1,8 @@
 const userModel = require("../models/userModels");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const SECRET_KEY = process.env.JWT_SECRET;
 
 module.exports.createUserDBService = (userDetails) => {
   return new Promise(async function userModelFunc(resolve, reject) {
@@ -43,11 +46,37 @@ module.exports.createUserDBService = (userDetails) => {
       // Save the user to the database using async/await
       await userModelData.save(); 
 
+      // Create a JWT token after successful registration
+      const token = jwt.sign(
+        {id: userModelData._id, email: userModelData.email},
+        SECRET_KEY,
+        {expiresIn: '1h'} // Token expiration time
+      )
+       res.json({token});
+       
       // Resolve the promise if the user is saved successfully
-      resolve({ status: true, message: "User registered successfully" });
+      resolve({ status: true, message: "User registered successfully", token }); // Return token
     } catch (error) {
       // Reject with an appropriate error message
       reject({ status: false, message: "Internal server error", error });
     }
   });
+};
+
+module.exports.loginUserDBService = async (email, password) => {
+    const user = await userModel.findOne({ email });
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        throw new Error("Invalid password");
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id, email: user.email },SECRET_KEY, { expiresIn: '1h' });
+
+    return { user, token };
 };

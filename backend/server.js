@@ -1,17 +1,21 @@
+const dotenv = require('dotenv');
 const express = require('express')
 const app = express()
 const mongoose = require('mongoose');
 var routes = require("./routes/routes")
+
+dotenv.config();
+
 mongoose.set('strictQuery', false);
 
-mongoose.connect("mongodb://localhost:27017/bionicleDB")
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
         console.log("Successfully, Connected to Database");
     })
     .catch((error) => {
         console.log("Error connecting to database", error);
     });
-    
+
 app.use(express.json());
 app.use(routes);
 
