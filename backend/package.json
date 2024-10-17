@@ -1,0 +1,23 @@
+{
+  "name": "bionicle",
+  "version": "1.0.0",
+  "description": "MERN website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nanthesh/Bionicle.git"
+  },
+  "author": "Arun Wosti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nanthesh/Bionicle/issues"
+  },
+  "homepage": "https://github.com/Nanthesh/Bionicle#readme",
+  "dependencies": {
+    "express": "^4.21.1",
+    "mongoose": "^8.7.1"
+  }
+}
