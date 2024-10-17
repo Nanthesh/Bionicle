@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
@@ -14,7 +14,16 @@ import Logo from "../../assets/Logo.jpeg";
 import Footer from '../../components/Footer';
 import { Button, Checkbox, FormControlLabel } from '@mui/material';
 import { signInWithGooglePopup } from "../../firebase.util";
-import GoogleLogo from "../../assets/google-logo.png"; // Add Google logo path
+import GoogleLogo from "../../assets/google-logo.png";
+
+// Define the regex patterns
+const lengthRegex = /.{8,}/;
+const capitalLetterRegex = /[A-Z]/;
+const lowercaseLetterRegex = /[a-z]/;
+const numberRegex = /[0-9]/;
+const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+const onlyStringRegex = /^[a-zA-Z ]*$/; // To ensure username contains only letters and spaces
+const onlyNumberRegex = /^[0-9]*$/; // To ensure phone number contains only numbers
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +37,7 @@ const Signup = () => {
     agreeToTerms: false,
   });
   const [formErrors, setFormErrors] = useState({});
+  const [isFormValid, setIsFormValid] = useState(false); // Track form validity
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickShowConfirmPassword = () => setShowConfirmPassword((show) => !show);
@@ -44,15 +54,49 @@ const Signup = () => {
     });
   };
 
+  const validatePassword = (password) => {
+    if (!lengthRegex.test(password)) return "Password must be at least 8 characters long";
+    if (!capitalLetterRegex.test(password)) return "Password must contain at least one uppercase letter";
+    if (!lowercaseLetterRegex.test(password)) return "Password must contain at least one lowercase letter";
+    if (!numberRegex.test(password)) return "Password must contain at least one number";
+    if (!specialCharRegex.test(password)) return "Password must contain at least one special character";
+    return null;
+  };
+
   const validate = () => {
     let errors = {};
-    if (!formValues.username) errors.username = "Username is required";
-    if (!formValues.email) errors.email = "Email is required";
-    if (!/\S+@\S+\.\S+/.test(formValues.email)) errors.email = "Email address is invalid";
-    if (!formValues.password) errors.password = "Password is required";
-    if (formValues.password !== formValues.confirmPassword) errors.confirmPassword = "Passwords do not match";
-    if (!formValues.phoneNumber) errors.phoneNumber = "Phone number is required";
+
+    if (!formValues.username) {
+      errors.username = "Username is required";
+    } else if (!onlyStringRegex.test(formValues.username)) {
+      errors.username = "Username must contain only letters";
+    }
+
+    if (!formValues.email) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formValues.email)) {
+      errors.email = "Email address is invalid";
+    }
+
+    if (!formValues.password) {
+      errors.password = "Password is required";
+    } else {
+      const passwordError = validatePassword(formValues.password);
+      if (passwordError) errors.password = passwordError;
+    }
+
+    if (formValues.password !== formValues.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+
+    if (!formValues.phoneNumber) {
+      errors.phoneNumber = "Phone number is required";
+    } else if (!onlyNumberRegex.test(formValues.phoneNumber)) {
+      errors.phoneNumber = "Phone number must contain only numbers";
+    }
+
     if (!formValues.agreeToTerms) errors.agreeToTerms = "You must agree to the terms and conditions";
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -72,6 +116,12 @@ const Signup = () => {
       console.error("Error with Google Sign-In:", error);
     }
   };
+
+  // Check form validity on every form input change
+  useEffect(() => {
+    const isValid = validate() && formValues.agreeToTerms;
+    setIsFormValid(isValid);
+  }, [formValues]);
 
   return (
     <Box
@@ -248,7 +298,7 @@ const Signup = () => {
 
           {/* Submit and Login Buttons */}
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Button type="submit" variant="contained" sx={buttonStyles}>Submit</Button>
+            <Button type="submit" variant="contained" sx={buttonStyles} disabled={!isFormValid}>Submit</Button>
             <Button href="/login" variant="contained" sx={secondaryButtonStyles}>Login</Button>
           </Box>
         </form>
