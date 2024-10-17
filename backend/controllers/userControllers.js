@@ -36,21 +36,9 @@ const createUserControllerFunc = async (req, res) => {
   }
 };
 
-const loginUserControllerFunc = async (req, res) => {
-    try {
-        const result = await userService.loginUserDBService(req.body.email, req.body.password);
-        res.status(200).send({
-            status: true,
-            message: "User logged in successfully",
-            token: result.token
-        });
-    } catch (error) {
-        res.status(400).send({ status: false, message: error.message });
-    }
-};
+
 
 //  export the function
 module.exports = {
   createUserControllerFunc,
-  loginUserControllerFunc
 };

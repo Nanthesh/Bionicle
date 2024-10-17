@@ -2,7 +2,7 @@ const userModel = require("../models/userModels");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const SECRET_KEY = process.env.JWT_SECRET;
+const SECRET_KEY = process.env.JWT_SECRET || "random#secret";
 
 module.exports.createUserDBService = (userDetails) => {
   return new Promise(async function userModelFunc(resolve, reject) {
@@ -58,25 +58,9 @@ module.exports.createUserDBService = (userDetails) => {
       resolve({ status: true, message: "User registered successfully", token }); // Return token
     } catch (error) {
       // Reject with an appropriate error message
-      reject({ status: false, message: "Internal server error", error });
+      reject({ status: false, message: "Error getting token", error });
     }
   });
 };
 
-module.exports.loginUserDBService = async (email, password) => {
-    const user = await userModel.findOne({ email });
-    if (!user) {
-        throw new Error("User not found");
-    }
 
-    // Compare passwords
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-        throw new Error("Invalid password");
-    }
-
-    // Generate JWT token
-    const token = jwt.sign({ id: user._id, email: user.email },SECRET_KEY, { expiresIn: '1h' });
-
-    return { user, token };
-};
