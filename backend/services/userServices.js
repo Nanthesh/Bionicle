@@ -52,10 +52,11 @@ module.exports.createUserDBService = (userDetails) => {
         SECRET_KEY,
         {expiresIn: '1h'} // Token expiration time
       )
-       res.json({token});
-       
+    //  res.json({token});
+     
+     return { status: true, message: "User registered successfully", token };  // Return the success result
       // Resolve the promise if the user is saved successfully
-      resolve({ status: true, message: "User registered successfully", token }); // Return token
+    //   resolve({ status: true, message: "User registered successfully", token }); // Return token
     } catch (error) {
       // Reject with an appropriate error message
       reject({ status: false, message: "Error getting token", error });

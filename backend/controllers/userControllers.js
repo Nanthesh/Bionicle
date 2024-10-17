@@ -10,7 +10,8 @@ const createUserControllerFunc = async (req, res) => {
     console.log(result);
     console.log("****************");
 
-    if (result) {
+    if (result.status) {
+      console.log("Sending response with success");
       res.status(200).send({
         status: true,
         message: "User registered successfully",
@@ -18,6 +19,7 @@ const createUserControllerFunc = async (req, res) => {
         
       });
     } else {
+      console.log("Sending error response");
       res.status(400).send({
         status: false,
         message: "Error creating user",
