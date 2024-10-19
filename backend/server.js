@@ -1,9 +1,10 @@
 const dotenv = require('dotenv');
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
 const mongoose = require('mongoose');
-var routes = require("./routes/routes")
-
+const cors = require('cors');
+const routes = require("./routes/routes");
+app.use(cors());
 dotenv.config();
 
 mongoose.set('strictQuery', false);
@@ -17,16 +18,12 @@ mongoose.connect(process.env.MONGODB_URI)
     });
 
 app.use(express.json());
-app.use(routes);
+app.use(routes);  // No prefix, routes will be directly accessible
 
-
-app.listen(4000, function check(error)
-{
-    if (error)
-    {
+app.listen(4000, function check(error) {
+    if (error) {
         console.log("Error...Server couldn't start!!!");
-    }
-    else{
+    } else {
         console.log("Server Started at 4000");
     }
 });

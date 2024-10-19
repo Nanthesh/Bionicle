@@ -15,6 +15,7 @@ import Footer from '../../components/Footer';
 import { Button, Checkbox, FormControlLabel } from '@mui/material';
 import { signInWithGooglePopup } from "../../firebase.util";
 import GoogleLogo from "../../assets/google-logo.png";
+import axios from 'axios';
 
 // Define the regex patterns
 const lengthRegex = /.{8,}/;
@@ -101,13 +102,26 @@ const Signup = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      console.log('Form submitted successfully:', formValues);
+      try {
+        const userData = {
+          username: formValues.username,
+          email: formValues.email,
+          password: formValues.password,
+          phoneNumber: formValues.phoneNumber,
+        };
+  
+        // Updated URL without '/api'
+        const response = await axios.post('http://localhost:4000/user/register', userData);
+        console.log('Form submitted successfully:', response.data);
+      } catch (error) {
+        console.error("Error during registration:", error);
+      }
     }
   };
-
+  
   const logGoogleUser = async () => {
     try {
       const response = await signInWithGooglePopup();
@@ -128,22 +142,23 @@ const Signup = () => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      height="100vh"
+      minHeight="100vh"
       flexDirection="column"
       bgcolor="#f4f4f9"
+      sx={{ paddingX: 2 }}
     >
       <Card
         sx={{
           p: 4,
           boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.15)',
-          maxWidth: 400,
           width: '100%',
+          maxWidth: '400px',
           background: 'linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%)',
           borderRadius: '15px',
-          mt: 1,
+          mt: 2,
         }}
       >
-        <Box display="flex" justifyContent="center" mb={3}>
+        <Box display="flex" justifyContent="center" mb={1}>
           <img
             src={Logo}
             alt="Logo"
@@ -161,7 +176,7 @@ const Signup = () => {
           align="center"
           gutterBottom
           sx={{
-            fontSize: '2rem',
+            fontSize: { xs: '1.5rem', md: '2rem' },  // Adjust font size for smaller screens
             fontWeight: 'bold',
             color: '#1976d2',
             textTransform: 'uppercase',
@@ -291,7 +306,7 @@ const Signup = () => {
             />
           </Box>
           {formErrors.agreeToTerms && (
-            <Typography variant="caption" color="error" textAlign="center">
+            <Typography variant="caption" color="error" textAlign="center" sx={{display:"flex", justifyContent:"center"}}>
               {formErrors.agreeToTerms}
             </Typography>
           )}
@@ -299,7 +314,7 @@ const Signup = () => {
           {/* Submit and Login Buttons */}
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Button type="submit" variant="contained" sx={buttonStyles} disabled={!isFormValid}>Submit</Button>
-            <Button href="/login" variant="contained" sx={secondaryButtonStyles}>Login</Button>
+            <Button href="/Signin" variant="contained" sx={secondaryButtonStyles}>Login</Button>
           </Box>
         </form>
 

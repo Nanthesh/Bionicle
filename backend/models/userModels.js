@@ -1,23 +1,30 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var userSchema = new Schema ({
-
+var userSchema = new Schema({
     userName: {
         type: String,
         required: true
     },
-    email:{
+    email: {
         type: String,
         required: true
     },
-    password:{
-        type: String,
-        required: true
+    password: {
+        type: String, 
+        required: function() { return !this.provider; } // Password required if not using social provider
     },
     phone_number: {
         type: String,
-        required: true,
+        required: function() { return !this.provider; } // Phone number required if not using social provider
+    },
+    uid: {
+        type: String, // UID for Google/Firebase users
+        required: false
+    },
+    provider: {
+        type: String, // Provider (e.g., 'google')
+        required: false
     }
 }, { timestamps: true });
 
