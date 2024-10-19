@@ -23,8 +23,8 @@ const capitalLetterRegex = /[A-Z]/;
 const lowercaseLetterRegex = /[a-z]/;
 const numberRegex = /[0-9]/;
 const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
-const onlyStringRegex = /^[a-zA-Z ]*$/; // To ensure username contains only letters and spaces
-const onlyNumberRegex = /^[0-9]*$/; // To ensure phone number contains only numbers
+const onlyStringRegex = /^[a-zA-Z ]*$/;
+const onlyNumberRegex = /^[0-9]*$/;
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,11 +38,10 @@ const Signup = () => {
     agreeToTerms: false,
   });
   const [formErrors, setFormErrors] = useState({});
-  const [isFormValid, setIsFormValid] = useState(false); // Track form validity
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickShowConfirmPassword = () => setShowConfirmPassword((show) => !show);
-  
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
@@ -107,13 +106,12 @@ const Signup = () => {
     if (validate()) {
       try {
         const userData = {
-          username: formValues.username,
+          userName: formValues.username,
           email: formValues.email,
           password: formValues.password,
-          phoneNumber: formValues.phoneNumber,
+          phone_number: formValues.phoneNumber
         };
-  
-        // Updated URL without '/api'
+
         const response = await axios.post('http://localhost:4000/user/register', userData);
         console.log('Form submitted successfully:', response.data);
       } catch (error) {
@@ -121,17 +119,24 @@ const Signup = () => {
       }
     }
   };
-  
+
   const logGoogleUser = async () => {
     try {
-      const response = await signInWithGooglePopup();
-      console.log(response);
+      const { user } = await signInWithGooglePopup();
+      const googleUserData = {
+        userName: user.displayName,
+        email: user.email,
+        uid: user.uid,
+        provider: "google",
+        phone_number: "N/A",
+      };
+      const response = await axios.post('http://localhost:4000/user/register', googleUserData);
+      console.log('Google user saved to database:', response.data);
     } catch (error) {
-      console.error("Error with Google Sign-In:", error);
+      console.error("Error during Google Sign-In:", error);
     }
   };
 
-  // Check form validity on every form input change
   useEffect(() => {
     const isValid = validate() && formValues.agreeToTerms;
     setIsFormValid(isValid);
@@ -176,7 +181,7 @@ const Signup = () => {
           align="center"
           gutterBottom
           sx={{
-            fontSize: { xs: '1.5rem', md: '2rem' },  // Adjust font size for smaller screens
+            fontSize: { xs: '1.5rem', md: '2rem' },
             fontWeight: 'bold',
             color: '#1976d2',
             textTransform: 'uppercase',
@@ -187,7 +192,6 @@ const Signup = () => {
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          {/* Input fields (username, email, password, confirm password) */}
           <TextField
             required
             id="outlined-username"
@@ -215,7 +219,6 @@ const Signup = () => {
             sx={{ ...inputStyles }}
           />
 
-          {/* Password fields */}
           <FormControl fullWidth variant="outlined" margin="normal" error={!!formErrors.password}>
             <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
             <OutlinedInput
@@ -246,7 +249,6 @@ const Signup = () => {
             )}
           </FormControl>
 
-          {/* Confirm Password */}
           <FormControl fullWidth variant="outlined" margin="normal" error={!!formErrors.confirmPassword}>
             <InputLabel htmlFor="outlined-adornment-confirm-password">Confirm Password</InputLabel>
             <OutlinedInput
@@ -277,7 +279,6 @@ const Signup = () => {
             )}
           </FormControl>
 
-          {/* Phone number */}
           <TextField
             required
             id="outlined-phone"
@@ -292,7 +293,6 @@ const Signup = () => {
             sx={{ ...inputStyles }}
           />
 
-          {/* Terms and Conditions */}
           <Box display="flex" justifyContent="center" textAlign="center">
             <FormControlLabel
               control={
@@ -306,19 +306,17 @@ const Signup = () => {
             />
           </Box>
           {formErrors.agreeToTerms && (
-            <Typography variant="caption" color="error" textAlign="center" sx={{display:"flex", justifyContent:"center"}}>
+            <Typography variant="caption" color="error" textAlign="center" sx={{ display: "flex", justifyContent: "center" }}>
               {formErrors.agreeToTerms}
             </Typography>
           )}
 
-          {/* Submit and Login Buttons */}
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Button type="submit" variant="contained" sx={buttonStyles} disabled={!isFormValid}>Submit</Button>
             <Button href="/Signin" variant="contained" sx={secondaryButtonStyles}>Login</Button>
           </Box>
         </form>
 
-        {/* Google Sign-In Button */}
         <Box textAlign="center" mt={2} sx={{ borderRadius: "15px" }}>
           <Typography variant="body2">or continue with:</Typography>
         </Box>
@@ -352,41 +350,41 @@ const Signup = () => {
 
 // Define input and button styles
 const inputStyles = {
-  borderRadius: '50px', // Rounded corners
+  borderRadius: '50px',
   '& .MuiOutlinedInput-root': {
-    borderRadius: '50px', // Rounded corners for input
+    borderRadius: '50px',
   },
   '& .MuiInputLabel-root': {
-    fontSize: '1.1rem', // Adjust font size for label
+    fontSize: '1.1rem',
   },
   '& .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#5D3FD3', // Color of the border
+    borderColor: '#5D3FD3',
   },
   '&:hover .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#4b2fc4', // Hover color of the border
+    borderColor: '#4b2fc4',
   },
   '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#5D3FD3', // Focus color of the border
+    borderColor: '#5D3FD3',
   },
 };
 
 const buttonStyles = {
   backgroundColor: '#5D3FD3',
-  borderRadius: '50px', // Rounded edges
-  paddingX: 4, // Horizontal padding
-  paddingY: 1, // Vertical padding
+  borderRadius: '50px',
+  paddingX: 4,
+  paddingY: 1,
   ':hover': {
-    backgroundColor: '#4b2fc4', // Hover color
+    backgroundColor: '#4b2fc4',
   },
 };
 
 const secondaryButtonStyles = {
   backgroundColor: '#4A4458',
-  borderRadius: '50px', // Rounded edges
-  paddingX: 4, // Horizontal padding
-  paddingY: 1, // Vertical padding
+  borderRadius: '50px',
+  paddingX: 4,
+  paddingY: 1,
   ':hover': {
-    backgroundColor: '#3b3748', // Hover color
+    backgroundColor: '#3b3748',
   },
 };
 
