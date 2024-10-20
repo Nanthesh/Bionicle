@@ -61,7 +61,51 @@ const loginService = async (email, password, req) => {
   }
 };
 
+// Service function to handle Google Login
+const googleLoginService = async (userData) => {
+  try {
+    const { email, userName, uid, provider, phone_number } = userData;
+
+    // Log received Google user data
+    console.log("Received Google user data:", userData);
+
+    // Check if the user already exists in the database
+    let user = await User.findOne({ email });
+    
+    if (!user) {
+      // Create a new user if not found
+      console.log("Creating new Google user...");
+      user = new User({
+        userName: userName,
+        email: email,
+        users_id: uid, // Use Firebase UID as unique ID
+        provider: provider,
+        password: null, // No password required for Google users
+        phone_number: phone_number
+      });
+      await user.save();
+      console.log("New Google user created successfully.");
+    } else {
+      console.log("Existing user found for email:", email);
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign(
+      { users_id: user.users_id, email: user.email, username: user.userName },
+      jwtSecret,
+      { expiresIn: '1h' }
+    );
+
+    console.log("Generated JWT token for Google user.");
+    return { success: true, token };
+  } catch (error) {
+    console.error("Error during Google login service:", error);
+    return { success: false, message: "Google login failed", error: error.message };
+  }
+};
+
 module.exports = {
   loginService,
   logFailedAttempt,
+  googleLoginService, // Export the new Google Login Service
 };
