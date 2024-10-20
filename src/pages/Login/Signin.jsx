@@ -202,7 +202,7 @@ const Signin = () => {
               </Grid>
               <Grid item xs={6}>
                 <Button
-                  href="/register"
+                  href="/Signup"
                   variant="contained"
                   fullWidth
                   sx={{
@@ -230,15 +230,15 @@ const Signin = () => {
                   />
                 }
                 sx={{
-                  backgroundColor: '#4285F4',
-                  color: 'white',
+                  backgroundColor: 'white',
+                  color: '#757575',
                   borderRadius: '50px',
                   fontWeight: 'bold',
                   textTransform: 'none',
                   width: '100%',
                   height: '50px',
                   boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-                  ':hover': { backgroundColor: '#357AE8' },
+                  ':hover': { backgroundColor: '#357AE8' ,color:'black'},
                   '&:active': { backgroundColor: '#3367D6' },
                 }}
               >
