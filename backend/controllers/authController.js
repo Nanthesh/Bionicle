@@ -1,5 +1,6 @@
 // authController.js
-const { loginService } = require('../services/authService');
+const { loginService, googleLoginService } = require('../services/authService');
+
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -19,4 +20,20 @@ const loginUser = async (req, res) => {
     return res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-module.exports = { loginUser };
+
+const googleLogin = async (req, res) => {
+  try {
+    const googleResult = await googleLoginService(req.body);
+
+    if (googleResult.success) {
+      return res.status(200).json({ token: googleResult.token });
+    } else {
+      return res.status(500).json({ message: googleResult.message, error: googleResult.error });
+    }
+  } catch (error) {
+    console.error("Google Login Error:", error); // Log the full error to console
+    return res.status(500).json({ message: 'Google login failed', error: error.message });
+  }
+};
+
+module.exports = { loginUser, googleLogin };

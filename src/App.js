@@ -1,15 +1,4 @@
 import React from 'react';
-<<<<<<< HEAD
-//import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Signin from './Components/Signin'; 
-
-const App = () => {
-  return (
-<Signin/>
-  );
-};
-
-=======
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Signup from './pages/Register/Signup';  
 import Signin from './pages/Login/Signin';
@@ -30,5 +19,4 @@ const App = () => {
   );
 };
 
->>>>>>> javier
 export default App;
