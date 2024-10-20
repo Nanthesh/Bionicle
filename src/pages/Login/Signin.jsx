@@ -171,7 +171,7 @@ const Signin = () => {
                   />
                 </Grid>
                 <Grid item xs={12} textAlign="center">
-                  <Link href="#" variant="body2" sx={{ color: '#5D3FD3' }}>
+                  <Link href="/ForgotPassword" variant="body2" sx={{ color: '#5D3FD3' }}>
                     Forgot password?
                   </Link>
                 </Grid>
