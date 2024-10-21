@@ -11,7 +11,7 @@ const router = express.Router();
 // Register route
 router.post('/user/register', userController.createUserControllerFunc);
 
-
+router.post('/user/google-login', authController.googleLogin);
 
 // Create Redis client
 const redisClient = Redis.createClient();
