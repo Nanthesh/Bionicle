@@ -1,46 +1,30 @@
 const userService = require("../services/userServices");
 
-const createUserControllerFunc = async (req, res) => {
+module.exports.createUserControllerFunc = async (req, res) => {
   try {
-    console.log(req.body);
-
-    // Call the service to create the user in the database
-    const result = await userService.createUserDBService(req.body);
-
-    console.log(result);
-    console.log("****************");
+    const userDetails = req.body;
+    const result = await userService.createUserDBService(userDetails);
 
     if (result.status) {
+      // Send response only once
       console.log("Sending response with success");
-      res.status(200).send({
+      return res.status(200).json({
         status: true,
-        message: "User registered successfully",
-        token: result.token,
-        
+        message: result.message,
+        token: result.token, // Return the token
       });
     } else {
-      console.log("Sending error response");
-      res.status(400).send({
+      // Handle failure scenario
+      return res.status(400).json({
         status: false,
-        message: "Error creating user",
+        message: result.message,
       });
     }
-    console.log("Token", token);
-    
-  } catch (err) {
-    console.log(err);
-
-    // Send error response to client
-    res.status(500).send({
+  } catch (error) {
+    console.error("Error in user registration:", error);
+    return res.status(500).json({
       status: false,
       message: "Internal server error",
     });
   }
-};
-
-
-
-//  export the function
-module.exports = {
-  createUserControllerFunc,
 };
