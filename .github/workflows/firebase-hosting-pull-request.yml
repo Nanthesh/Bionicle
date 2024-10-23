@@ -16,10 +16,12 @@ jobs:
       # Install dependencies (replace with your package manager if necessary)
       - name: Install dependencies
         run: npm install
+        working-directory: ./frontend
 
       # Build the project (adjust this command according to your build setup)
       - name: Build project
         run: npm run build
+        working-directory: ./frontend
 
       # Deploy to Firebase Hosting
       - uses: FirebaseExtended/action-hosting-deploy@v0
@@ -27,3 +29,4 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_THE_BIONICLE }}
           projectId: the-bionicle
+          working-directory: ./frontend
