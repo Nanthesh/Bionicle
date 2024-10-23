@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Typography, Container, Card, CardContent } from '@mui/material';
 import { sendResetEmail  } from "../../firebase.util";
+import axios from 'axios';
 
 
 const ForgotPassword = () => {
@@ -14,16 +15,31 @@ const ForgotPassword = () => {
     setMessage('');
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      await sendResetEmail(email);
-      setMessage('Password reset email sent! Check your inbox.');
-    } catch (error) {
-      setError('Failed to send password reset email. Please check your email and try again.');
-    }
-  };
+const handleSubmit = async (event) => {
+  event.preventDefault();
 
+  try {
+    // Step 1: Check user type by making a request to the backend
+    const response = await axios.post('http://localhost:4000/user/check-user', { email });
+
+    // Step 2: Check the response to determine if the user is using Google Auth or local auth
+    if (response.data.userType === 'google') {
+      // If it's a Google user, use Firebase's sendResetEmail function
+      await sendResetEmail(email);
+      setMessage('Google password reset email sent! Check your inbox.');
+    } else {
+      // If it's a local user, use your backend's forgot password service
+      const backendResponse = await axios.post('http://localhost:4000/user/forgot-password', { email });
+      console.log(backendResponse.data); // Check the backend response
+      setMessage('Password reset email sent! Check your inbox.');
+    }
+  } catch (error) {
+    // Handle any errors that occur during the process
+    console.error("Error in sending forgot password request:", error);
+    setError('Failed to send password reset email. Please check your email and try again.');
+  }
+};
+  
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
       <Card sx={{ boxShadow: 3, borderRadius: '16px' }}>

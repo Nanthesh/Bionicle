@@ -7,6 +7,8 @@ const userSchema = new Schema({
     email: { type: String, required: true },
     password: { type: String },
     phone_number: { type: String, required: true },
+    passwordResetToken: { type: String, default: null },
+    passwordResetExpires: { type: Date, default: null },
 }, { timestamps: true });
 
   // Compare password method

@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const Redis = require('redis');
 const RedisStore = require('rate-limit-redis'); 
 const authMiddleware = require('../middlewares/authMiddleware');
+const { forgotPassword, resetPassword, checkUserType } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -39,6 +40,15 @@ router.get('/user/login/protected', authMiddleware, (req, res) => {
       email: req.user.email
     });
   });
+
+// Route for checking if user is Google or local
+router.post('/user/check-user', checkUserType);
+
+// Route for handling forgot password (local users)
+router.post('/user/forgot-password', forgotPassword);
+
+// Route for handling password reset
+router.post('/user/reset-password', resetPassword);
 
 
 module.exports = router;

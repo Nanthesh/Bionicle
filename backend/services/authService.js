@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModels');
 const { jwtSecret } = require('../config/app.keys');
 const fs = require('fs');
+const sgMail = require('@sendgrid/mail');
+const bcrypt = require('bcryptjs');
+require('dotenv').config();
 
 // Function to find a user by email
 const findUserByEmail = async (email) => {
@@ -104,8 +107,102 @@ const googleLoginService = async (userData) => {
   }
 };
 
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const resetPasswordService = async (token, newPassword) => {
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    const user = await User.findOne({
+      email: decoded.email,
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: Date.now() } // Ensure the token is not expired
+    });
+
+    if (!user) {
+      return { success: false, message: 'Invalid or expired token' };
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update user's password and clear reset token fields
+    user.password = hashedPassword;
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    await user.save();
+
+    return { success: true, message: 'Password has been reset successfully' };
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    return { success: false, message: 'Error resetting password', error: error.message };
+  }
+};
+
+const sendLocalResetEmail = async (email, resetUrl) => {
+  const msg = {
+    to: email,
+    from: 'bionicle658@gmail.com', // Your verified sender email
+    subject: 'Password Reset Request',
+    text: `You requested a password reset. Click the following link to reset your password: ${resetUrl}`,
+    html: `<strong>Click the link to reset your password: <a href="${resetUrl}">Reset Password</a></strong>`,
+  };
+
+  await sgMail.send(msg);
+};
+
+const forgotPasswordService = async (email) => {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return { success: false, message: 'User not found' };
+    }
+
+    if (!user.password) {
+      return { success: false, message: 'This user uses Google Auth. Please reset your password using Google.' };
+    }
+
+    const resetToken = jwt.sign({ email: user.email }, jwtSecret, { expiresIn: '1h' });
+    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+
+    // Store the token and expiration in the database
+    user.passwordResetToken = resetToken;
+    user.passwordResetExpires = Date.now() + 3600000; // 1 hour from now
+    await user.save();
+
+    await sendLocalResetEmail(email, resetUrl);
+    return { success: true, message: 'Password reset email sent for local user. Check your inbox.' };
+  } catch (error) {
+    console.error("Error in forgotPasswordService:", error);
+    return { success: false, message: 'Error processing the request', error: error.message };
+  }
+};
+
+
+const checkUserTypeService = async (email) => {
+  try {
+    // Find user by email in the database
+    const user = await User.findOne({ email });
+
+    // If user not found, return null
+    if (!user) {
+      return null;
+    }
+
+    // Determine the user type based on whether the password field is set
+    const userType = user.password ? 'local' : 'google';
+    return userType;
+  } catch (error) {
+    console.error("Error in checkUserTypeService:", error);
+    throw new Error('Error checking user type');  // Let the controller handle this error
+  }
+};
+
 module.exports = {
   loginService,
   logFailedAttempt,
   googleLoginService, // Export the new Google Login Service
+  forgotPasswordService,
+  resetPasswordService,
+  checkUserTypeService
 };
