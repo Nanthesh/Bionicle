@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PrimarySearchAppBar from '../../components/Navbar.jsx';
 import ProductCard from '../../components/Card.jsx';
-import { Pagination, Box, Grid } from '@mui/material';
+import { Pagination, Box, Grid, Typography } from '@mui/material';
 import ActiveLastBreadcrumb from '../../components/Breadcrumb.jsx';
 import ExploreMenu from '../../components/ExploreMenu.jsx';
 
@@ -89,58 +89,63 @@ const products = [
 ];
 
 const ProductPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [category, setCategory] = useState('All'); // Default to "All"
-  const productsPerPage = 8;
-
-  // Filter products based on the selected category
-  const filteredProducts = category === 'All'
-    ? products
-    : products.filter(product => product.category === category);
-
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState(''); // Add state for search query
+    const productsPerPage = 8;
+  
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  
+    // Filter products based on search query
+    const filteredProducts = products.filter((product) =>
+      product.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  
+    const currentProducts = filteredProducts.slice(
+      indexOfFirstProduct,
+      indexOfLastProduct
+    );
+  
+    const handlePageChange = (event, value) => {
+      setCurrentPage(value);
+    };
+  
+    return (
+      <div>
+        <PrimarySearchAppBar setSearchQuery={setSearchQuery} />
+        <ActiveLastBreadcrumb />
+        <ExploreMenu />
+  
+        <Box sx={{ flexGrow: 1, padding: 2, marginBottom: '10px' }}>
+          <Grid container spacing={1}>
+            {currentProducts.length > 0 ? (
+              currentProducts.map((product) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+                  <ProductCard
+                    title={product.title}
+                    description={product.description}
+                    image={product.image}
+                    price={product.price}
+                  />
+                </Grid>
+              ))
+            ) : (
+              <Typography variant="h6" align="center" sx={{ width: '100%' }}>
+                No products found.
+              </Typography>
+            )}
+          </Grid>
+        </Box>
+  
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Pagination
+            count={Math.ceil(filteredProducts.length / productsPerPage)}
+            page={currentPage}
+            onChange={handlePageChange}
+          />
+        </Box>
+      </div>
+    );
   };
-
-  return (
-    <div>
-      <PrimarySearchAppBar />
-      <ActiveLastBreadcrumb />
-
-      {/* ExploreMenu with category handling */}
-      <ExploreMenu category={category} setCategory={setCategory} />
-
-      {/* Product Grid */}
-      <Box sx={{ flexGrow: 1, padding: 2, marginBottom: '10px' }}>
-        <Grid container spacing={1}>
-          {currentProducts.map((product) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
-              <ProductCard 
-                title={product.title} 
-                description={product.description} 
-                image={product.image} 
-                price={product.price} 
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-
-      {/* Pagination */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <Pagination
-          count={Math.ceil(filteredProducts.length / productsPerPage)}
-          page={currentPage}
-          onChange={handlePageChange}
-          color="primary"
-        />
-      </Box>
-    </div>
-  );
-};
-
-export default ProductPage;
+  
+  export default ProductPage;

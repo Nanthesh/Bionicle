@@ -54,7 +54,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function PrimarySearchAppBar() {
+export default function PrimarySearchAppBar({ setSearchQuery }) {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -65,6 +65,10 @@ export default function PrimarySearchAppBar() {
 
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value); // Pass search input to parent component
   };
 
   const mobileMenuId = 'primary-search-account-menu-mobile';
@@ -131,7 +135,7 @@ export default function PrimarySearchAppBar() {
           >
             Bionicle
           </Typography>
-          
+
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
             <Search sx={{ width: { xs: '100%', sm: '60%', md: '40%' } }}>
               <SearchIconWrapper>
@@ -140,6 +144,7 @@ export default function PrimarySearchAppBar() {
               <StyledInputBase
                 placeholder="Search…"
                 inputProps={{ 'aria-label': 'search' }}
+                onChange={handleSearchChange} // Handle search input changes
               />
             </Search>
           </Box>
