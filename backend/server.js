@@ -1,32 +1,28 @@
+
 const dotenv = require('dotenv');
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
 const mongoose = require('mongoose');
-var routes = require("./routes/routes")
+const cors = require('cors');
+const routes = require('./routes/routes');
 
 dotenv.config();
+app.use(cors());
+app.use(express.json());
 
 mongoose.set('strictQuery', false);
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
-        console.log("Successfully, Connected to Database");
+        console.log("Successfully connected to Database");
     })
     .catch((error) => {
         console.log("Error connecting to database", error);
     });
 
-app.use(express.json());
-app.use(routes);
+app.use('/', routes);
 
+app.listen(4000, () => {
+    console.log('Server running on port 4000');
+  });
 
-app.listen(4000, function check(error)
-{
-    if (error)
-    {
-        console.log("Error...Server couldn't start!!!");
-    }
-    else{
-        console.log("Server Started at 4000");
-    }
-});
