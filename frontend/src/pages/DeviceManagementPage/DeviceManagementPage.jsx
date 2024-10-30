@@ -13,6 +13,7 @@ function DeviceManagementPage() {
       { id: 1, name: 'Device 1', title: 'Smart Bulb', quantity: 10, powerConsumption: '15W', category: 'Lighting', description: 'WiFi-enabled smart bulb' },
       { id: 2, name: 'Device 2', title: 'Smart Thermostat', quantity: 5, powerConsumption: '5W', category: 'Heating', description: 'Automated home thermostat' },
       { id: 3, name: 'Device 3', title: 'Smart Lock', quantity: 3, powerConsumption: '7W', category: 'Security', description: 'Bluetooth-enabled lock' },
+      { id: 3, name: 'Device 4', title: 'Iphone 15', quantity: 3, powerConsumption: '20W', category: 'Smart Phone', description: 'Bluetooth-enabled lock' },
     ];
     setDevices(initialDevices);
   }, []);
@@ -132,19 +133,35 @@ function DeviceManagementPage() {
 
       {/* Devices List */}
       <h3>Device List</h3>
-      <ul style={{ listStyleType: 'none', padding: '0' }}>
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '15px',
+        justifyContent: 'flex-start'
+      }}>
         {devices.map((device) => (
-          <li key={device.id} style={{ marginBottom: '15px', padding: '15px', background: '#fff', border: '1px solid #ddd', borderRadius: '8px' }}>
+          <div key={device.id} style={{
+            flex: '1 1 45%', // Half-width for each product, even if there’s only one product
+            minWidth: '250px',
+            maxWidth: '400px',
+            marginBottom: '15px',
+            padding: '15px',
+            background: '#fff',
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            boxSizing: 'border-box',
+            textAlign: 'center' // Center-align content including buttons
+          }}>
             <p><strong>Name:</strong> {device.name}</p>
             <p><strong>Title:</strong> {device.title}</p>
             <p><strong>Quantity:</strong> {device.quantity}</p>
             <p><strong>Power Consumption:</strong> {device.powerConsumption}</p>
             <p><strong>Category:</strong> {device.category}</p>
             <p><strong>Description:</strong> {device.description}</p>
-            <div style={{ marginTop: '10px' }}>
+            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
               <button
                 onClick={() => startEditing(device)}
-                style={{ marginRight: '10px', padding: '8px', borderRadius: '4px', background: '#2196F3', color: 'white', border: 'none', cursor: 'pointer' }}
+                style={{ padding: '8px', borderRadius: '4px', background: '#2196F3', color: 'white', border: 'none', cursor: 'pointer' }}
               >
                 Edit
               </button>
@@ -155,9 +172,21 @@ function DeviceManagementPage() {
                 Delete
               </button>
             </div>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
+
+      {/* Media Query for Responsiveness */}
+      <style>
+        {`
+          @media (max-width: 768px) {
+            .device-item {
+              flex: 1 1 100%; // Full width on tablets
+              max-width: 100%;
+            }
+          }
+        `}
+      </style>
     </div>
   );
 }
