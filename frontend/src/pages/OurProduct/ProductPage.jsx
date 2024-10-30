@@ -14,7 +14,7 @@ const products = [
     price: 10.99,
     category: 'Bulb', // Added category
   },
-  {-d
+  {
     id: 2,
     title: 'Smartphone',
     description: 'Latest model with 5G connectivity and high-performance camera.',
