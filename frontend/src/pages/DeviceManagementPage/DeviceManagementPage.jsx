@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function DeviceManagementPage() {
   const [devices, setDevices] = useState([]);
   const [formData, setFormData] = useState({ title: '', category: '', description: '', powerConsumption: '', quantity: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [editingDeviceId, setEditingDeviceId] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
 
   // Simulate fetching pre-added devices from backend
   useEffect(() => {
@@ -13,7 +14,7 @@ function DeviceManagementPage() {
       { id: 1, name: 'Device 1', title: 'Smart Bulb', quantity: 10, powerConsumption: '15W', category: 'Lighting', description: 'WiFi-enabled smart bulb' },
       { id: 2, name: 'Device 2', title: 'Smart Thermostat', quantity: 5, powerConsumption: '5W', category: 'Heating', description: 'Automated home thermostat' },
       { id: 3, name: 'Device 3', title: 'Smart Lock', quantity: 3, powerConsumption: '7W', category: 'Security', description: 'Bluetooth-enabled lock' },
-      { id: 3, name: 'Device 4', title: 'Iphone 15', quantity: 3, powerConsumption: '20W', category: 'Smart Phone', description: 'Bluetooth-enabled lock' },
+      { id: 3, name: 'Device 4', title: 'Smart Bell', quantity: 6, powerConsumption: '7W', category: 'Security', description: 'Bluetooth-enabled lock' },
     ];
     setDevices(initialDevices);
   }, []);
@@ -33,7 +34,7 @@ function DeviceManagementPage() {
       category: device.category,
       description: device.description,
       powerConsumption: device.powerConsumption,
-      quantity: device.quantity, // Include quantity in form data
+      quantity: device.quantity,
     });
   };
 
@@ -46,8 +47,34 @@ function DeviceManagementPage() {
           : device
       )
     );
-    setSuccessMessage('Successfully updated!'); // Show success message
+    toast.dismiss(); // Clear any previous notifications
+    toast.success('Device updated successfully!', {
+      position: "top-center",
+      autoClose: 2000, // Display for 2 seconds
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      theme: "colored",
+      transition: Bounce
+    });
     resetForm();
+  };
+
+  // Delete a device
+  const deleteDevice = (id) => {
+    setDevices((prev) => prev.filter((device) => device.id !== id));
+    toast.dismiss(); // Clear any previous notifications
+    toast.error('Device deleted successfully!', {
+      position: "top-center",
+      autoClose: 2000, // Display for 2 seconds
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      theme: "colored",
+      transition: Bounce
+    });
   };
 
   // Reset form and exit editing mode
@@ -55,20 +82,14 @@ function DeviceManagementPage() {
     setFormData({ title: '', category: '', description: '', powerConsumption: '', quantity: '' });
     setIsEditing(false);
     setEditingDeviceId(null);
-    setTimeout(() => setSuccessMessage(''), 3000); // Clear message after 3 seconds
-  };
-
-  // Delete a device
-  const deleteDevice = (id) => {
-    setDevices((prev) => prev.filter((device) => device.id !== id));
   };
 
   return (
     <div style={{ padding: '20px', maxWidth: '700px', margin: 'auto', fontFamily: 'Arial, sans-serif' }}>
       <h2 style={{ textAlign: 'center', color: '#333' }}>Device Management</h2>
 
-      {/* Success Message */}
-      {successMessage && <div style={{ color: 'green', textAlign: 'center', marginBottom: '10px' }}>{successMessage}</div>}
+      {/* Toast Notification Container */}
+      <ToastContainer />
 
       {/* Editing Section Popup */}
       {isEditing && (
@@ -137,11 +158,11 @@ function DeviceManagementPage() {
         display: 'flex',
         flexWrap: 'wrap',
         gap: '15px',
-        justifyContent: 'flex-start'
+        justifyContent: devices.length === 1 ? 'flex-start' : 'center'
       }}>
         {devices.map((device) => (
           <div key={device.id} style={{
-            flex: '1 1 45%', // Half-width for each product, even if there’s only one product
+            flex: '1 1 45%',
             minWidth: '250px',
             maxWidth: '400px',
             marginBottom: '15px',
@@ -150,7 +171,7 @@ function DeviceManagementPage() {
             border: '1px solid #ddd',
             borderRadius: '8px',
             boxSizing: 'border-box',
-            textAlign: 'center' // Center-align content including buttons
+            textAlign: 'center'
           }}>
             <p><strong>Name:</strong> {device.name}</p>
             <p><strong>Title:</strong> {device.title}</p>
@@ -181,7 +202,7 @@ function DeviceManagementPage() {
         {`
           @media (max-width: 768px) {
             .device-item {
-              flex: 1 1 100%; // Full width on tablets
+              flex: 1 1 100%;
               max-width: 100%;
             }
           }
