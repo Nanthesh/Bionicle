@@ -15,7 +15,7 @@ function DeviceManagementPage() {
       { id: 1, name: 'Device 1', title: 'Smart Bulb', quantity: 10, powerConsumption: '15W', category: 'Lighting', description: 'WiFi-enabled smart bulb' },
       { id: 2, name: 'Device 2', title: 'Smart Thermostat', quantity: 5, powerConsumption: '5W', category: 'Heating', description: 'Automated home thermostat' },
       { id: 3, name: 'Device 3', title: 'Smart Lock', quantity: 3, powerConsumption: '7W', category: 'Security', description: 'Bluetooth-enabled lock' },
-      { id: 3, name: 'Device 4', title: 'Smart Bell', quantity: 6, powerConsumption: '7W', category: 'Security', description: 'Bluetooth-enabled lock' },
+      { id: 4, name: 'Device 4', title: 'Smart Bell', quantity: 6, powerConsumption: '7W', category: 'Security', description: 'Bluetooth-enabled lock' },
     ];
     setDevices(initialDevices);
   }, []);
