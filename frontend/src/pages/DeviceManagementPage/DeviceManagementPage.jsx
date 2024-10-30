@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import '../../components/styles.css'
 
 function DeviceManagementPage() {
   const [devices, setDevices] = useState([]);
@@ -196,18 +197,6 @@ function DeviceManagementPage() {
           </div>
         ))}
       </div>
-
-      {/* Media Query for Responsiveness */}
-      <style>
-        {`
-          @media (max-width: 768px) {
-            .device-item {
-              flex: 1 1 100%;
-              max-width: 100%;
-            }
-          }
-        `}
-      </style>
     </div>
   );
 }
