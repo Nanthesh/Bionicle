@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Card, CardContent, Typography, Grid2 as Grid, OutlinedInput, FormLabel, Button, Autocomplete, TextField, Snackbar, Alert } from '@mui/material';
 import { styled } from '@mui/system';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { countries, canadianProvinces, usStates } from './countryData';
 
 const FormGrid = styled(Grid)(() => ({
@@ -10,10 +11,11 @@ const FormGrid = styled(Grid)(() => ({
 }));
 
 export default function UserProfile() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    phoneNumber: '',
+    phone_Number: '',
     firstName: '',
     lastName: '',
     addressLine1: '',
@@ -31,35 +33,49 @@ export default function UserProfile() {
   // Error states for validation
   const [usernameError, setUsernameError] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [phoneNumberError, setPhoneNumberError] = useState('');
+  const [phone_NumberError, setphone_NumberError] = useState('');
   const [zipCodeError, setZipCodeError] = useState('');
 
+
   useEffect(() => {
-    axios.get('http://localhost:4000/api/user/profile')
-      .then((response) => {
-        const data = response.data;
-        setFormData({
-          username: data.username,
-          email: data.email,
-          phoneNumber: data.phoneNumber,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          addressLine1: data.addressLine1,
-          city: data.city,
-          state: usStates.find((state) => state.label === data.state) || canadianProvinces.find((province) => province.label === data.state),
-          zipCode: data.zipCode,
-          country: countries.find((c) => c.label === data.country),
-        });
-        if (data.country === 'Canada') setRegionOptions(canadianProvinces);
-        else if (data.country === 'United States') setRegionOptions(usStates);
-      })
-      .catch((error) => {
-        console.error('Error fetching user data', error);
-        setSnackbarMessage('Error fetching user data. Please try again later.');
-        setSnackbarSeverity('error');
-        setOpenSnackbar(true);
+  const token = localStorage.getItem('token');
+  console.log('Checking token:', token); // Debug log
+
+  if (!token) {
+    console.log('No token found, redirecting to /Signin'); // Debug log
+    navigate('/Signin');
+    return;
+  }
+
+  axios.get('http://localhost:4000/api/user/profile', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((response) => {
+      const data = response.data;
+      setFormData({
+        username: data.username,
+        email: data.email,
+        phone_Number: data.phone_Number,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        addressLine1: data.addressLine1,
+        city: data.city,
+        state: usStates.find((state) => state.label === data.state) || canadianProvinces.find((province) => province.label === data.state),
+        zipCode: data.zipCode,
+        country: countries.find((c) => c.label === data.country),
       });
-  }, []);
+      if (data.country === 'Canada') setRegionOptions(canadianProvinces);
+      else if (data.country === 'United States') setRegionOptions(usStates);
+    })
+    .catch((error) => {
+      console.error('Error fetching user data:', error);
+      setSnackbarMessage('Error fetching user data. Please try again later.');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+    });
+}, [navigate]);
 
   useEffect(() => {
     // Validate postal or ZIP code whenever country or ZIP code changes
@@ -74,8 +90,8 @@ export default function UserProfile() {
         setUsernameError(/^[a-zA-Z0-9]*$/.test(value) ? '' : 'Alphanumeric characters only');
       } else if (field === 'email') {
         setEmailError(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Please enter a valid email address.');
-      } else if (field === 'phoneNumber') {
-        setPhoneNumberError(/^\+?(\d.*){3,}$/.test(value) ? '' : 'Please enter a valid phone number.');
+      } else if (field === 'phone_Number') {
+        setphone_NumberError(/^\d+$/.test(value) ? '' :  'Please enter a valid phone number.');
       } else if (field === 'zipCode') {
         validatePostalOrZipCode(value);
       }
@@ -117,7 +133,7 @@ export default function UserProfile() {
       setFormData({
         username: '',
         email: '',
-        phoneNumber: '',
+        phone_Number: '',
         firstName: '',
         lastName: '',
         addressLine1: '',
@@ -132,16 +148,16 @@ export default function UserProfile() {
         .then((response) => {
           const data = response.data;
           setFormData({
-            username: data.username,
+            //username: data.username,
             email: data.email,
-            phoneNumber: data.phoneNumber,
+            phone_Number: data.phone_Number.replace(/\D/g, ''),
             firstName: data.firstName,
             lastName: data.lastName,
             addressLine1: data.addressLine1,
             city: data.city,
-            state: data.state,
-            zipCode: data.zipCode,
-            country: countries.find((c) => c.label === data.country),
+            state: data.state.label,
+            zipCode: data.zipCode.label,
+            country: countries.find((c) => c.label === data.country.label),
           });
           if (data.country === 'Canada') setRegionOptions(canadianProvinces);
           else if (data.country === 'United States') setRegionOptions(usStates);
@@ -158,27 +174,86 @@ export default function UserProfile() {
   };
 
   const handleSaveProfile = () => {
-    if (usernameError || emailError || phoneNumberError || zipCodeError) return;
-
-    axios.post('http://localhost:4000/api/user/profile', formData)
+    const { username, email, phone_Number, zipCode, firstName,lastName,addressLine1, city,state,country} = formData;
+    if (!username || !email || !phone_Number || !zipCode || !firstName || !lastName || !addressLine1 || !city || !state|| !country) {
+      setSnackbarMessage('Please fill in all required fields.');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+      return;
+    }
+    if (usernameError || emailError || phone_NumberError || zipCodeError) return;
+  
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('JWT token not found. Ensure you are logged in.');
+      setSnackbarMessage('Authentication error. Please log in again.');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+      return;
+    }
+  
+    // Extract and format phone number, checking both possible keys
+    let formattedPhoneNumber = formData.phone_number || formData.phone_Number || '';
+    formattedPhoneNumber = formattedPhoneNumber.replace(/\D/g, ''); // Remove non-numeric characters
+    if (formattedPhoneNumber.length === 10) {
+      formattedPhoneNumber = `+1${formattedPhoneNumber}`; // Add country code for Canada if 10 digits
+    }
+  
+    const formattedData = {
+      ...formData,
+      phone_number: formattedPhoneNumber,
+      state: formData.state?.label || formData.state,
+      country: formData.country?.label || formData.country,
+    };
+  
+    console.log('Sending formatted data:', formattedData);
+  
+    axios.put(
+      'http://localhost:4000/user/profile',
+      formattedData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((response) => {
-        if (response.data.code === 0) {
-          setSnackbarMessage('Profile saved successfully!');
+        console.log('API Response:', response);
+  
+        if (response.status === 200) { // Check the status code instead
+          setSnackbarMessage(response.data.message || 'Profile saved successfully!');
           setSnackbarSeverity('success');
           setEditMode(false);
         } else {
+          console.warn('Unexpected response:', response);
           setSnackbarMessage('An error occurred. Please try again.');
           setSnackbarSeverity('error');
         }
         setOpenSnackbar(true);
       })
       .catch((error) => {
-        console.error('Error saving profile', error);
+        console.error('Error saving profile:', error);
+  
+        if (error.response) {
+          console.error('Error response status:', error.response.status);
+          console.error('Error response data:', error.response.data);
+  
+          if (error.response.data.errors) {
+            console.error('Validation errors:', error.response.data.errors);
+          }
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+        } else {
+          console.error('Request setup error:', error.message);
+        }
+  
         setSnackbarMessage('An error occurred. Please try again later.');
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
       });
   };
+  
+  
 
   return (
     <Box
@@ -288,14 +363,14 @@ export default function UserProfile() {
                 placeholder="Phone Number"
                 fullWidth
                 required
-                value={formData.phoneNumber}
-                onChange={handleFieldChange('phoneNumber')}
-                error={Boolean(phoneNumberError)}
+                value={formData.phone_Number}
+                onChange={handleFieldChange('phone_Number')}
+                error={Boolean(phone_NumberError)}
                 size="small"
                 sx={{ borderRadius: '10px' }}
                 readOnly={!editMode}
               />
-              {phoneNumberError && <Typography variant="body2" color="error">{phoneNumberError}</Typography>}
+              {phone_NumberError && <Typography variant="body2" color="error">{phone_NumberError}</Typography>}
             </FormGrid>
 
             {/* Address Line 1 */}
