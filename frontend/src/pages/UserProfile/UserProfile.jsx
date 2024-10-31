@@ -4,6 +4,9 @@ import { styled } from '@mui/system';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { countries, canadianProvinces, usStates } from './countryData';
+import Navbar from '../../components/Navbar';
+import Sidebar from '../../components/Sidebar';
+
 
 const FormGrid = styled(Grid)(() => ({
   display: 'flex',
@@ -11,6 +14,7 @@ const FormGrid = styled(Grid)(() => ({
 }));
 
 export default function UserProfile() {
+  
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -256,14 +260,23 @@ export default function UserProfile() {
   
 
   return (
+
+    <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#f5f5f5' }}>
+    {/* Sidebar */}
+    <Sidebar />
+    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Navbar */}
+        <Navbar />
+
     <Box
       sx={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        mt: 4,
+        justifyContent: 'center',
+        flexGrow: 1,
         px: { xs: 2, md: 3 },
-        width: '100%',
+        width: '90%',
       }}
     >
       <Card sx={{ width: '100%', maxWidth: 800, padding: 3, boxShadow: 2 }}>
@@ -515,12 +528,18 @@ export default function UserProfile() {
         </CardContent>
       </Card>
 
-      {/* Snackbar for showing success/error messages */}
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}>
-        <Alert onClose={() => setOpenSnackbar(false)} severity={snackbarSeverity}>
-          {snackbarMessage}
-        </Alert>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} 
+      >
+      <Alert onClose={() => setOpenSnackbar(false)} severity={snackbarSeverity}>
+           {snackbarMessage}
+      </Alert>
       </Snackbar>
     </Box>
+    </Box>
+   </Box>
   );
 }

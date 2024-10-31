@@ -19,6 +19,7 @@ import Logo from "../../assets/Logo.jpeg";
 import axios from 'axios';
 import { signInWithGooglePopup } from "../../firebase.util"; // Assuming this is a Firebase utility function
 import GoogleLogo from "../../assets/google-logo.png";
+import { useNavigate } from 'react-router-dom';
 
 const Signin = () => {
   const [email, setEmail] = useState('');
@@ -28,6 +29,8 @@ const Signin = () => {
   const [passwordError, setPasswordError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState('');
+
+  const navigate = useNavigate();
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -54,6 +57,7 @@ const Signin = () => {
       // Handle successful login
       console.log('Login successful:', response.data);
       localStorage.setItem('token', response.data.token);
+      navigate('/dashboard');
     } catch (error) {
       if (error.response && error.response.data) {
         setApiError(error.response.data.message || 'An error occurred during login.');
@@ -90,6 +94,7 @@ const Signin = () => {
       if (token) {
         localStorage.setItem('token', token);
         console.log("Google user logged in and token saved");
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error("Error during Google Sign-In:", error);
