@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const routes = require('./routes/routes');
 const profileRoutes = require("./routes/profileRoutes");
+const deviceRoutes = require("./routes/DeviceRoutes");
 dotenv.config();
 
 app.use(cors());
@@ -22,6 +23,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/', routes);
 app.use('/', profileRoutes);
 app.use('/api', routes);
+app.use('/api', deviceRoutes);
 app.listen(4000, () => {
   console.log('Server running on port 4000');
 });
