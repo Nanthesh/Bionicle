@@ -20,6 +20,8 @@ const getUserProfile = async (req, res) => {
 const updateUserProfile = async (req, res) => {
     const {
         userName,
+        firstName,
+        lastName,
         email,
         phone_number,
         address,
@@ -38,6 +40,8 @@ const updateUserProfile = async (req, res) => {
 
         // Update user fields with provided data or retain existing values
         user.userName = userName || user.userName;
+        user.firstName= firstName || user.firstName;
+        user.lastName = lastName || user.lastName;
         user.email = email || user.email;
         user.phone_number = phone_number || user.phone_number;
         user.address = address || user.address;
