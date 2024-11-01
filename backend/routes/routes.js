@@ -10,7 +10,7 @@ const { check, validationResult } = require('express-validator');
 const User = require('../models/userModels');
 const UserProfile = require('../models/userProfile');
 const router = express.Router();
-
+const { getUserProfile, updateUserProfile } = require('../controllers/userProfileController');
 // Register route
 router.post('/user/register', userController.createUserControllerFunc);
 
@@ -100,6 +100,7 @@ router.get('/user/profile', authMiddleware, async (req, res) => {
   }
 });
 
+router.get('/profile', authMiddleware, getUserProfile);
 
-
+router.put('/profile', authMiddleware, updateUserProfile);
 module.exports = router;

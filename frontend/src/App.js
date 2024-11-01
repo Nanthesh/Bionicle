@@ -7,6 +7,7 @@ import ResetPassword from './pages/Login/ResetPassword';
 import UserProfile from './pages/UserProfile/UserProfile';
 import ProductPage from './pages/OurProduct/ProductPage';
 import Dashboard from './pages/Dashboard/Dashboard';
+import AddDevice from "./pages/AddDevice/AddDevices"
 const App = () => {
   return (
     <Router>
@@ -21,7 +22,7 @@ const App = () => {
           <Route path="/user-profile" element={<UserProfile/>} /> 
           <Route path='/product_page' element={<ProductPage/>} />
           <Route path='/dashboard' element={<Dashboard/>} />
-
+          <Route path='/add-device' element={<AddDevice/>}/>
         </Routes>
       </div>
     </Router>

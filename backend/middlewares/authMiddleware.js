@@ -24,6 +24,7 @@ const authMiddleware = (req, res, next) => {
 
     // If the token is valid, attach the decoded user data to the request object
     req.user = decoded;
+    console.log('Decoded User:', req.user);
     next();  // Continue to the next middleware or route handler
   });
 };

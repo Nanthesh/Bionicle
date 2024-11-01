@@ -17,12 +17,12 @@ export default function UserProfile() {
   
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: '',
+    userName: '',
     email: '',
-    phone_Number: '',
+    phone_number: '',
     firstName: '',
     lastName: '',
-    addressLine1: '',
+    address: '',
     city: '',
     state: null,  // Store the entire region object (not just the label)
     zipCode: '',
@@ -35,9 +35,9 @@ export default function UserProfile() {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   // Error states for validation
-  const [usernameError, setUsernameError] = useState('');
+  const [userNameError, setuserNameError] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [phone_NumberError, setphone_NumberError] = useState('');
+  const [phone_numberError, setphone_numberError] = useState('');
   const [zipCodeError, setZipCodeError] = useState('');
 
 
@@ -51,7 +51,7 @@ export default function UserProfile() {
     return;
   }
 
-  axios.get('http://localhost:4000/api/user/profile', {
+  axios.get('http://localhost:4000/api/profile', {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -59,12 +59,12 @@ export default function UserProfile() {
     .then((response) => {
       const data = response.data;
       setFormData({
-        username: data.username,
+        userName: data.userName,
         email: data.email,
-        phone_Number: data.phone_Number,
+        phone_number: data.phone_number,
         firstName: data.firstName,
         lastName: data.lastName,
-        addressLine1: data.addressLine1,
+        address: data.address,
         city: data.city,
         state: usStates.find((state) => state.label === data.state) || canadianProvinces.find((province) => province.label === data.state),
         zipCode: data.zipCode,
@@ -90,12 +90,12 @@ export default function UserProfile() {
     const value = e.target.value;
     setFormData({ ...formData, [field]: value });
 
-    if (field === 'username') {
-        setUsernameError(/^[a-zA-Z0-9]*$/.test(value) ? '' : 'Alphanumeric characters only');
+    if (field === 'userName') {
+        setuserNameError(/^[a-zA-Z0-9]*$/.test(value) ? '' : 'Alphanumeric characters only');
       } else if (field === 'email') {
         setEmailError(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Please enter a valid email address.');
-      } else if (field === 'phone_Number') {
-        setphone_NumberError(/^\d+$/.test(value) ? '' :  'Please enter a valid phone number.');
+      } else if (field === 'phone_number') {
+        setphone_numberError(/^\d+$/.test(value) ? '' :  'Please enter a valid phone number.');
       } else if (field === 'zipCode') {
         validatePostalOrZipCode(value);
       }
@@ -133,59 +133,60 @@ export default function UserProfile() {
 
   const toggleEditMode = () => {
     if (editMode) {
-      // Clear the fields first
-      setFormData({
-        username: '',
-        email: '',
-        phone_Number: '',
-        firstName: '',
-        lastName: '',
-        addressLine1: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        country: null,
-      });
+      // Refetch data to reset the form when exiting edit mode
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('JWT token not found. Ensure you are logged in.');
+        setSnackbarMessage('Authentication error. Please log in again.');
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
+        navigate('/Signin');
+        return;
+      }
   
-      // Then refetch the data from the API
-      axios.get('http://localhost:4000/api/user/profile')
+      axios.get('http://localhost:4000/api/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
         .then((response) => {
           const data = response.data;
           setFormData({
-            //username: data.username,
+            userName: data.userName,
             email: data.email,
-            phone_Number: data.phone_Number.replace(/\D/g, ''),
+            phone_number: data.phone_number,
             firstName: data.firstName,
             lastName: data.lastName,
-            addressLine1: data.addressLine1,
+            address: data.address,
             city: data.city,
-            state: data.state.label,
-            zipCode: data.zipCode.label,
-            country: countries.find((c) => c.label === data.country.label),
+            state: usStates.find((state) => state.label === data.state) || canadianProvinces.find((province) => province.label === data.state) || data.state,
+            zipCode: data.zipCode,
+            country: countries.find((c) => c.label === data.country) || data.country,
           });
           if (data.country === 'Canada') setRegionOptions(canadianProvinces);
           else if (data.country === 'United States') setRegionOptions(usStates);
           else setRegionOptions([]);
         })
         .catch((error) => {
-          console.error('Error fetching user data', error);
+          console.error('Error fetching user data:', error);
           setSnackbarMessage('Error fetching user data. Please try again later.');
           setSnackbarSeverity('error');
           setOpenSnackbar(true);
         });
     }
+  
     setEditMode(!editMode);
   };
 
   const handleSaveProfile = () => {
-    const { username, email, phone_Number, zipCode, firstName,lastName,addressLine1, city,state,country} = formData;
-    if (!username || !email || !phone_Number || !zipCode || !firstName || !lastName || !addressLine1 || !city || !state|| !country) {
+    const { userName, email, phone_number, zipCode, firstName, lastName, address, city, state, country } = formData;
+    if (!userName || !email || !phone_number || !zipCode || !firstName || !lastName || !address || !city || !state || !country) {
       setSnackbarMessage('Please fill in all required fields.');
       setSnackbarSeverity('error');
       setOpenSnackbar(true);
       return;
     }
-    if (usernameError || emailError || phone_NumberError || zipCodeError) return;
+    if (userNameError || emailError || phone_numberError || zipCodeError) return;
   
     const token = localStorage.getItem('token');
     if (!token) {
@@ -197,7 +198,7 @@ export default function UserProfile() {
     }
   
     // Extract and format phone number, checking both possible keys
-    let formattedPhoneNumber = formData.phone_number || formData.phone_Number || '';
+    let formattedPhoneNumber = formData.phone_number || '';
     formattedPhoneNumber = formattedPhoneNumber.replace(/\D/g, ''); // Remove non-numeric characters
     if (formattedPhoneNumber.length === 10) {
       formattedPhoneNumber = `+1${formattedPhoneNumber}`; // Add country code for Canada if 10 digits
@@ -210,10 +211,11 @@ export default function UserProfile() {
       country: formData.country?.label || formData.country,
     };
   
+    // Debug log to check if formData is updated before sending
     console.log('Sending formatted data:', formattedData);
   
     axios.put(
-      'http://localhost:4000/user/profile',
+      'http://localhost:4000/api/profile',
       formattedData,
       {
         headers: {
@@ -257,7 +259,6 @@ export default function UserProfile() {
       });
   };
   
-  
 
   return (
 
@@ -286,25 +287,25 @@ export default function UserProfile() {
           </Typography>
 
           <Grid container spacing={2}>
-            {/* Username */}
+            {/* userName */}
             <FormGrid size={{ xs: 12 }}>
-              <FormLabel htmlFor="username" required>
-                Username
+              <FormLabel htmlFor="userName" required>
+                userName
               </FormLabel>
               <OutlinedInput
-                id="username"
-                name="username"
-                placeholder="Username"
+                id="userName"
+                name="userName"
+                placeholder="userName"
                 fullWidth
                 required
-                value={formData.username}
-                onChange={handleFieldChange('username')}
-                error={Boolean(usernameError)}
+                value={formData.userName}
+                onChange={handleFieldChange('userName')}
+                error={Boolean(userNameError)}
                 size="small"
                 sx={{ borderRadius: '10px' }}
                 readOnly={!editMode}
               />
-              {usernameError && <Typography variant="body2" color="error">{usernameError}</Typography>}
+              {userNameError && <Typography variant="body2" color="error">{userNameError}</Typography>}
             </FormGrid>
 
             {/* First Name and Last Name */}
@@ -376,14 +377,14 @@ export default function UserProfile() {
                 placeholder="Phone Number"
                 fullWidth
                 required
-                value={formData.phone_Number}
-                onChange={handleFieldChange('phone_Number')}
-                error={Boolean(phone_NumberError)}
+                value={formData.phone_number}
+                onChange={handleFieldChange('phone_number')}
+                error={Boolean(phone_numberError)}
                 size="small"
                 sx={{ borderRadius: '10px' }}
                 readOnly={!editMode}
               />
-              {phone_NumberError && <Typography variant="body2" color="error">{phone_NumberError}</Typography>}
+              {phone_numberError && <Typography variant="body2" color="error">{phone_numberError}</Typography>}
             </FormGrid>
 
             {/* Address Line 1 */}
@@ -397,8 +398,8 @@ export default function UserProfile() {
                 placeholder="Street name and number"
                 fullWidth
                 required
-                value={formData.addressLine1}
-                onChange={handleFieldChange('addressLine1')}
+                value={formData.address}
+                onChange={handleFieldChange('address')}
                 size="small"
                 sx={{ borderRadius: '10px' }}
                 readOnly={!editMode}
@@ -425,36 +426,41 @@ export default function UserProfile() {
             </FormGrid>
 
             <FormGrid size={{ xs: 12, md: 6 }}>
-              <FormLabel htmlFor="state" required>
-                  {formData.country?.code === 'CA' ? 'Province' : formData.country?.code === 'US' ? 'State' : 'State/Province'}
-              </FormLabel>
-              {formData.country?.code === 'CA' || formData.country?.code === 'US' ? (
-              <Autocomplete
-                id="state"
-                options={regionOptions}
-                getOptionLabel={(option) => option.label}
-                value={formData.state}
-                onChange={(event, newValue) => setFormData({ ...formData, state: newValue || null })}
-                renderInput={(params) => (
-                  <TextField {...params} placeholder={formData.country?.code === 'CA' ? 'Select Province' : 'Select State'} fullWidth size="small" />
-                )}
-                disabled={!editMode}
-              />
-            ) : (
-                // Render OutlinedInput for other countries
-                <OutlinedInput
-                  id="state"
-                  name="state"
-                  placeholder="State/Province"
-                  fullWidth
-                  value={formData.state || ''}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  size="small"
-                  sx={{ borderRadius: '10px' }}
-                  readOnly={!editMode}
-                />
-              )}
-            </FormGrid>
+  <FormLabel htmlFor="state" required>
+    {formData.country?.code === 'CA' ? 'Province' : formData.country?.code === 'US' ? 'State' : 'State/Province'}
+  </FormLabel>
+  {!editMode ? (
+    <Typography variant="body2" sx={{ padding: '8px 0' }}>
+      {formData.state?.label || formData.state || 'N/A'}
+    </Typography>
+  ) : (
+    (formData.country?.code === 'CA' || formData.country?.code === 'US') ? (
+      <Autocomplete
+        id="state"
+        options={regionOptions}
+        getOptionLabel={(option) => option.label}
+        value={formData.state}
+        onChange={(event, newValue) => setFormData({ ...formData, state: newValue || null })}
+        renderInput={(params) => (
+          <TextField {...params} placeholder={formData.country?.code === 'CA' ? 'Select Province' : 'Select State'} fullWidth size="small" />
+        )}
+        disabled={!editMode}
+      />
+    ) : (
+      <OutlinedInput
+        id="state"
+        name="state"
+        placeholder="State/Province"
+        fullWidth
+        value={formData.state || ''}
+        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+        size="small"
+        sx={{ borderRadius: '10px' }}
+        readOnly={!editMode}
+      />
+    )
+  )}
+</FormGrid>
 
   
             <FormGrid size={{ xs: 12, md: 6 }}>
@@ -478,19 +484,25 @@ export default function UserProfile() {
             </FormGrid>
 
             <FormGrid size={{ xs: 12, md: 6 }}>
-              <FormLabel htmlFor="country" required>
-                Country
-              </FormLabel>
-              <Autocomplete
-                id="country"
-                options={countries}
-                getOptionLabel={(option) => option.label}
-                value={formData.country}
-                onChange={handleCountryChange}
-                renderInput={(params) => <TextField {...params} placeholder="Country" fullWidth size="small" />}
-                disabled={!editMode}
-              />
-            </FormGrid>
+  <FormLabel htmlFor="country" required>
+    Country
+  </FormLabel>
+  {!editMode ? (
+    <Typography variant="body2" sx={{ padding: '8px 0' }}>
+      {formData.country?.label || 'N/A'}
+    </Typography>
+  ) : (
+    <Autocomplete
+      id="country"
+      options={countries}
+      getOptionLabel={(option) => option.label}
+      value={formData.country}
+      onChange={handleCountryChange}
+      renderInput={(params) => <TextField {...params} placeholder="Country" fullWidth size="small" />}
+      disabled={!editMode}
+    />
+  )}
+</FormGrid>
 
             {/* Edit / Save & Cancel Buttons */}
             <Grid item xs={12} textAlign="center">
