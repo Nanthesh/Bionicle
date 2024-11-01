@@ -1,21 +1,24 @@
-const User = require('../models/userProfile');
+const User = require('../models/userModels');
 
 // Get User Profile
 const getUserProfile = async (req, res) => {
+    console.log('Decoded user ID:', req.user.id);
     try {
         const user = await User.findById(req.user.id).select('-password'); // Exclude password field
         if (!user) {
+            console.log('User profile not found in database');
             return res.status(404).json({ message: 'User not found' });
         }
         res.status(200).json(user);
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ message: 'Server error',error: error.message});
     }
 };
 
 // Update User Profile
 const updateUserProfile = async (req, res) => {
-    const { username, email, phone_number } = req.body;
+    const { userName, email, phone_number } = req.body;
     try {
         let user = await User.findById(req.user.id);
         if (!user) {
@@ -23,7 +26,7 @@ const updateUserProfile = async (req, res) => {
         }
 
         // Update user fields
-        user.username = username || user.username;
+        user.userName = userName || user.userName;
         user.email = email || user.email;
         user.phone_number = phone_number || user.phone_number;
 
