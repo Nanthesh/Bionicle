@@ -21,6 +21,7 @@ import { signInWithGooglePopup } from "../../firebase.util"; // Assuming this is
 import GoogleLogo from "../../assets/google-logo.png";
 import { useNavigate } from 'react-router-dom';
 
+
 const Signin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -56,7 +57,7 @@ const Signin = () => {
   
       // Handle successful login
       console.log('Login successful:', response.data);
-      localStorage.setItem('token', response.data.token);
+      sessionStorage.setItem('token', response.data.token);
       navigate('/dashboard');
     } catch (error) {
       if (error.response && error.response.data) {
@@ -92,7 +93,8 @@ const Signin = () => {
       // Store the token if it is returned
       const token = response.data.token;
       if (token) {
-        localStorage.setItem('token', token);
+        
+        sessionStorage.setItem('token', token);
         console.log("Google user logged in and token saved");
         navigate('/dashboard');
       }
@@ -102,6 +104,7 @@ const Signin = () => {
   };
 
   return (
+
     <GoogleOAuthProvider clientId="324740845093-2fijp594fabl35q9289abg9tnjcajnqk.apps.googleusercontent.com">
       <Container maxWidth="sm" sx={{ mt: 8 }}>
         <Card sx={{ boxShadow: 3, borderRadius: '16px' }}>

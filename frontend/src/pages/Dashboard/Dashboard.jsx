@@ -2,8 +2,10 @@ import React from 'react';
 import { Box, Grid, Card, CardContent, Typography } from '@mui/material';
 import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
+import { useAuth } from '../../components/AuthProvider';
 
 const Dashboard = () => {
+  const { isAuthenticated, loading } = useAuth();
   return (
     <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#f5f5f5' }}>
       {/* Sidebar */}

@@ -42,7 +42,7 @@ export default function UserProfile() {
 
 
   useEffect(() => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   console.log('Checking token:', token); // Debug log
 
   if (!token) {
@@ -53,7 +53,7 @@ export default function UserProfile() {
 
   axios.get('http://localhost:4000/api/profile', {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem('token')}`,
     },
   })
     .then((response) => {
@@ -134,7 +134,7 @@ export default function UserProfile() {
   const toggleEditMode = () => {
     if (editMode) {
       // Refetch data to reset the form when exiting edit mode
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         console.error('JWT token not found. Ensure you are logged in.');
         setSnackbarMessage('Authentication error. Please log in again.');
@@ -146,7 +146,7 @@ export default function UserProfile() {
   
       axios.get('http://localhost:4000/api/profile', {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       })
         .then((response) => {
@@ -188,7 +188,7 @@ export default function UserProfile() {
     }
     if (userNameError || emailError || phone_numberError || zipCodeError) return;
   
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       console.error('JWT token not found. Ensure you are logged in.');
       setSnackbarMessage('Authentication error. Please log in again.');
@@ -219,7 +219,7 @@ export default function UserProfile() {
       formattedData,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
         },
       }
     )

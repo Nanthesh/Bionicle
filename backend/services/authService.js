@@ -110,10 +110,13 @@ const googleLoginService = async (userData) => {
 // Set SendGrid API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// Function to reset password
 const resetPasswordService = async (token, newPassword) => {
   try {
+    console.log('Received token:', token); // Log the token received for debugging
+
     const decoded = jwt.verify(token, SECRET_KEY);
+    console.log('Decoded token:', decoded); // Log the decoded payload
+
     const user = await User.findOne({
       email: decoded.email,
       passwordResetToken: token,
@@ -121,6 +124,7 @@ const resetPasswordService = async (token, newPassword) => {
     });
 
     if (!user) {
+      console.log('User not found or token is invalid/expired');
       return { success: false, message: 'Invalid or expired token' };
     }
 

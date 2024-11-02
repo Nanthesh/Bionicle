@@ -14,6 +14,14 @@ const userSchema = new Schema({
   zipCode: { type: String },
   country: { type: String },
   password: { type: String },  
+  passwordResetToken: {
+    type: String,
+    default: null,
+  },
+  passwordResetExpires: {
+    type: Date,
+    default: null,
+  },
 }, { timestamps: true });
   // Compare password method
   userSchema.methods.comparePassword = async function (enteredPassword) {
