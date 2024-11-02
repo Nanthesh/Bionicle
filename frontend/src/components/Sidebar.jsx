@@ -18,7 +18,7 @@ const Sidebar = () => {
   const menuItems = [
     { text: 'Energy Dashboard', icon: <DashboardIcon />, link: '/dashboard' },
     { text: 'Energy Usage', icon: <TipsAndUpdatesIcon />, link: '/energy-usage' },
-    { text: 'Eco-Friendly', icon: <SpaIcon />, link: '/eco-friendly' },
+    { text: 'Our-Products', icon: <SpaIcon />, link: '/product_page' },
     { text: 'Energy Saving Tips', icon: <TipsAndUpdatesIcon />, link: '/energy-tips' },
   ];
 
@@ -113,19 +113,19 @@ const Sidebar = () => {
         <ListItem
           button
           component={Link}
-          to="/profile"
-          onClick={() => handleItemClick('/profile')}
+          to="/user-profile"
+          onClick={() => handleItemClick('/user-profile')}
           sx={{
             textDecoration: 'none',
-            color: activeItem === '/profile' ? 'white' : 'black',
-            backgroundColor: activeItem === '/profile' ? '#673ab7' : 'transparent',
+            color: activeItem === '/user-profile' ? 'white' : 'black',
+            backgroundColor: activeItem === '/user-profile' ? '#673ab7' : 'transparent',
             '&:hover': {
               backgroundColor: '#673ab7',
               color: 'white',
             },
           }}
         >
-          <ListItemIcon sx={{ color: activeItem === '/profile' ? 'white' : 'black' }}>
+          <ListItemIcon sx={{ color: activeItem === '/user-profile' ? 'white' : 'black' }}>
             <PersonIcon />
           </ListItemIcon>
           <ListItemText primary="User" secondary="View profile" />
