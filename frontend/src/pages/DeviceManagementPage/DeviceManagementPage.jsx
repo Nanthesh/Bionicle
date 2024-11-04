@@ -44,7 +44,8 @@ function DeviceManagementPage() {
     setDevices((prev) =>
       prev.map((device) =>
         device.id === editingDeviceId
-          ? { ...device, title: formData.title, category: formData.category, description: formData.description, powerConsumption: formData.powerConsumption, quantity: formData.quantity }
+          ? { ...device, title: formData.title, category: formData.category, description: formData.description,
+            powerConsumption: formData.powerConsumption, quantity: formData.quantity }
           : device
       )
     );
@@ -64,19 +65,64 @@ function DeviceManagementPage() {
 
   // Delete a device
   const deleteDevice = (id) => {
-    setDevices((prev) => prev.filter((device) => device.id !== id));
-    toast.dismiss(); // Clear any previous notifications
-    toast.error('Device deleted successfully!', {
-      position: "top-center",
-      autoClose: 2000, // Display for 2 seconds
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: true,
-      theme: "colored",
-      transition: Bounce
-    });
+    toast(
+      ({ closeToast }) => (
+        <div>
+          <p>Are you sure you want to delete this device?</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <button
+              onClick={() => {
+                setDevices((prev) => prev.filter((device) => device.id !== id));
+                toast.dismiss();
+                toast.error('Device deleted successfully!', {
+                  position: "top-center",
+                  autoClose: 2000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: false,
+                  draggable: true,
+                  theme: "colored",
+                  transition: Bounce,
+                });
+              }}
+              style={{
+                padding: '5px 10px',
+                backgroundColor: '#f44336',
+                color: 'white',
+                border: 'none',
+                borderRadius: '3px',
+                cursor: 'pointer',
+              }}
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => closeToast()}
+              style={{
+                padding: '5px 10px',
+                backgroundColor: '#555',
+                color: 'white',
+                border: 'none',
+                borderRadius: '3px',
+                cursor: 'pointer',
+              }}
+            >
+              No
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        position: "top-center",
+        autoClose: false,
+        closeOnClick: false,
+        hideProgressBar: true,
+        draggable: false,
+      }
+    );
   };
+  
+
 
   // Reset form and exit editing mode
   const resetForm = () => {
