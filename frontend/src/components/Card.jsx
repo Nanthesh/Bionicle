@@ -22,6 +22,11 @@ export default function ProductCard({ title, description, image, price }) {
         height="194"
         image={image}
         alt={title}
+        sx={{
+          height: 150, 
+          objectFit: 'contain', 
+          backgroundColor: 'white', 
+        }}
       />
       <CardContent>
         <Typography variant="h6" sx={{ color: 'text.primary' }}>

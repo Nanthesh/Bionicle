@@ -6,9 +6,11 @@ const Redis = require('redis');
 const RedisStore = require('rate-limit-redis'); 
 const authMiddleware = require('../middlewares/authMiddleware');
 const { forgotPassword, resetPassword, checkUserType } = require('../controllers/authController');
-
+const { check, validationResult } = require('express-validator');
+const User = require('../models/userModels');
+const UserProfile = require('../models/userProfile');
 const router = express.Router();
-
+const { getUserProfile, updateUserProfile } = require('../controllers/userProfileController');
 // Register route
 router.post('/user/register', userController.createUserControllerFunc);
 
@@ -50,5 +52,73 @@ router.post('/user/forgot-password', forgotPassword);
 // Route for handling password reset
 router.post('/user/reset-password', resetPassword);
 
+router.put('/user/profile',
+  [
+    check('email', 'Please include a valid email').isEmail(),
+    check('phone_number', 'Please include a valid phone number').isMobilePhone('any'),  // Validate international numbers
+  ],
+  authMiddleware,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const { email, phone_number } = req.body;
+      const userId = req.user.id; // Use user ID from the token
+
+      // Fetch the user from the database
+      let user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Update the user's profile data
+      user.email = email || user.email;
+      user.phone_number = phone_number || user.phone_number;
+
+      // Save the updated user back to the database
+      await user.save();
+
+      res.status(200).json({ message: 'Profile updated successfully', user });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  }
+);
+
+router.get('/user/profile', authMiddleware, async (req, res) => {
+  try {
+    const profile = await UserProfile.findOne({ userId: req.user.id });  // Use userId from the token
+    if (!profile) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+    res.status(200).json(profile);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.get('/profile', authMiddleware, getUserProfile);
+
+router.put('/profile', authMiddleware, updateUserProfile);
+
+
+router.post('/validate-token', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: 'Token is invalid or expired' });
+    }
+
+    res.status(200).json({ message: 'Token is valid' });
+  });
+});
 
 module.exports = router;
