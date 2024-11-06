@@ -11,6 +11,8 @@ import ForumIcon from '@mui/icons-material/Forum';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PersonIcon from '@mui/icons-material/Person';
 import Logo from "../assets/Logo.jpeg";
+import AddIcon from '@mui/icons-material/Add';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 const Sidebar = () => {
   const location = useLocation(); // Detect current route
   const [activeItem, setActiveItem] = useState(location.pathname);
@@ -20,6 +22,8 @@ const Sidebar = () => {
     { text: 'Energy Usage', icon: <TipsAndUpdatesIcon />, link: '/energy-usage' },
     { text: 'Our-Products', icon: <SpaIcon />, link: '/product_page' },
     { text: 'Energy Saving Tips', icon: <TipsAndUpdatesIcon />, link: '/energy-tips' },
+    {text: 'Add Device', icon: <AddIcon/>, link :'/add-device'},
+    {text: "Device Management", icon :<ManageSearchIcon/>, link: ''}
   ];
 
   const handleItemClick = (link) => {
