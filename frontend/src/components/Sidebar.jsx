@@ -20,6 +20,8 @@ const Sidebar = () => {
     { text: 'Energy Usage', icon: <TipsAndUpdatesIcon />, link: '/energy-usage' },
     { text: 'Our-Products', icon: <SpaIcon />, link: '/product_page' },
     { text: 'Energy Saving Tips', icon: <TipsAndUpdatesIcon />, link: '/energy-tips' },
+    {text: 'Add Device', icon: <TipsAndUpdatesIcon />, link: '/add-device' },
+    { text: 'Device Management', icon: <TipsAndUpdatesIcon />, link: '/device_management_page' },
   ];
 
   const handleItemClick = (link) => {

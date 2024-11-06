@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import '../../components/styles.css'
+import '../../components/styles.css';
+import PrimarySearchAppBar from '../../components/Navbar.jsx';
+import Sidebar from '../../components/Sidebar.jsx';
 
 function DeviceManagementPage() {
   const [devices, setDevices] = useState([]);
@@ -9,239 +11,175 @@ function DeviceManagementPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingDeviceId, setEditingDeviceId] = useState(null);
 
-  // Simulate fetching pre-added devices from backend
   useEffect(() => {
-    const initialDevices = [
-      { id: 1, name: 'Device 1', title: 'Smart Bulb', quantity: 10, powerConsumption: '15W', category: 'Lighting', description: 'WiFi-enabled smart bulb' },
-      { id: 2, name: 'Device 2', title: 'Smart Thermostat', quantity: 5, powerConsumption: '5W', category: 'Heating', description: 'Automated home thermostat' },
-      { id: 3, name: 'Device 3', title: 'Smart Lock', quantity: 3, powerConsumption: '7W', category: 'Security', description: 'Bluetooth-enabled lock' },
-      { id: 4, name: 'Device 4', title: 'Smart Bell', quantity: 6, powerConsumption: '7W', category: 'Security', description: 'Bluetooth-enabled lock' },
-    ];
-    setDevices(initialDevices);
+    fetch('http://localhost:4000/api/devices') 
+      .then(response => response.json())
+      .then(data => setDevices(data))
+      .catch(error => console.error('Error fetching devices:', error));
   }, []);
 
-  // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Start editing a device
   const startEditing = (device) => {
     setIsEditing(true);
-    setEditingDeviceId(device.id);
+    setEditingDeviceId(device._id);
     setFormData({
-      title: device.title,
-      category: device.category,
-      description: device.description,
-      powerConsumption: device.powerConsumption,
-      quantity: device.quantity,
+      title: device.deviceName,
+      category: device.deviceType,
+      description: device.modelNumber,
+      powerConsumption: device.voltage,
+      quantity: device.quantity || '',
     });
   };
 
-  // Update the device details
   const updateDevice = () => {
-    setDevices((prev) =>
-      prev.map((device) =>
-        device.id === editingDeviceId
-          ? { ...device, title: formData.title, category: formData.category, description: formData.description,
-            powerConsumption: formData.powerConsumption, quantity: formData.quantity }
-          : device
-      )
-    );
-    toast.dismiss(); // Clear any previous notifications
-    toast.success('Device updated successfully!', {
-      position: "top-center",
-      autoClose: 2000, // Display for 2 seconds
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: true,
-      theme: "colored",
-      transition: Bounce
-    });
-    resetForm();
+    fetch(`http://localhost:4000/api/devices/${editingDeviceId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        deviceName: formData.title,
+        modelNumber: formData.description,
+        voltage: formData.powerConsumption,
+        deviceType: formData.category,
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        setDevices(prev => prev.map(device => device._id === editingDeviceId ? data.device : device));
+        toast.success('Device updated successfully!', {
+          position: "top-center",
+          autoClose: 1000,
+          theme: "colored",
+          transition: Bounce,
+        });
+        resetForm();
+      })
+      .catch(error => console.error('Error updating device:', error));
   };
 
-  // Delete a device
   const deleteDevice = (id) => {
-    toast(
-      ({ closeToast }) => (
-        <div>
-          <p>Are you sure you want to delete this device?</p>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <button
-              onClick={() => {
-                setDevices((prev) => prev.filter((device) => device.id !== id));
-                toast.dismiss();
-                toast.error('Device deleted successfully!', {
-                  position: "top-center",
-                  autoClose: 2000,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: false,
-                  draggable: true,
-                  theme: "colored",
-                  transition: Bounce,
-                });
-              }}
-              style={{
-                padding: '5px 10px',
-                backgroundColor: '#f44336',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                cursor: 'pointer',
-              }}
-            >
-              Yes
-            </button>
-            <button
-              onClick={() => closeToast()}
-              style={{
-                padding: '5px 10px',
-                backgroundColor: '#555',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                cursor: 'pointer',
-              }}
-            >
-              No
-            </button>
-          </div>
+    // Display a custom confirmation toast with Yes and No buttons
+    const confirmationToast = toast.info(
+      <div>
+        <p>Are you sure you want to delete this device?</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <button
+            onClick={() => {
+              toast.dismiss(confirmationToast); // Dismiss the confirmation toast
+              handleDelete(id); // Handle deletion after dismissing confirmation toast
+            }}
+            style={{
+              padding: '5px 10px',
+              backgroundColor: '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss(confirmationToast)} // Dismiss the toast if 'No' is clicked
+            style={{
+              padding: '5px 10px',
+              backgroundColor: '#f44336',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            No
+          </button>
         </div>
-      ),
+      </div>,
       {
         position: "top-center",
-        autoClose: false,
-        closeOnClick: false,
-        hideProgressBar: true,
-        draggable: false,
+        autoClose: false, // Don't close until user clicks
+        closeOnClick: false, // Prevent closing when clicking outside
+        draggable: false, // Disable dragging
+        theme: "colored",
       }
     );
   };
   
+  // Handle the actual delete action
+  const handleDelete = (id) => {
+    fetch(`http://localhost:4000/api/devices/${id}`, { method: 'DELETE' })
+      .then(response => response.json())
+      .then(() => {
+        setDevices(prev => prev.filter(device => device._id !== id));
+        toast.success('Device deleted successfully!', {
+          position: "top-center",
+          autoClose: 1000,
+          theme: "colored",
+          transition: Bounce,
+        });
+      })
+      .catch(error => {
+        console.error('Error deleting device:', error);
+        toast.error('Error deleting device.', {
+          position: "top-center",
+          autoClose: 2000,
+          theme: "colored",
+          transition: Bounce,
+        });
+      });
+  };
+  
+  
+  
 
-
-  // Reset form and exit editing mode
   const resetForm = () => {
-    setFormData({ title: '', category: '', description: '', powerConsumption: '', quantity: '' });
+    setFormData({ title: '', category: '', description: '', powerConsumption: '',});
     setIsEditing(false);
     setEditingDeviceId(null);
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '700px', margin: 'auto', fontFamily: 'Arial, sans-serif' }}>
-      <h2 style={{ textAlign: 'center', color: '#333' }}>Device Management</h2>
+    <div style={{ display: 'flex' }}>
+      <Sidebar /> {/* Render the Sidebar */}
+      <div style={{ flexGrow: 1 }}>
+        <PrimarySearchAppBar /> {/* Render the Navbar */}
+        <div style={{ padding: '20px', maxWidth: '700px', margin: 'auto', fontFamily: 'Arial, sans-serif' }}>
+          <h2 style={{ textAlign: 'center', color: '#333' }}>Device Management</h2>
 
-      {/* Toast Notification Container */}
-      <ToastContainer />
+          <ToastContainer />
 
-      {/* Editing Section Popup */}
-      {isEditing && (
-        <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', padding: '15px', background: '#f0f0f0', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
-          <h3>Edit Device</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <input
-              type="text"
-              name="title"
-              placeholder="Device Title"
-              value={formData.title}
-              onChange={handleChange}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <input
-              type="text"
-              name="category"
-              placeholder="Device Category"
-              value={formData.category}
-              onChange={handleChange}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <input
-              type="text"
-              name="description"
-              placeholder="Device Description"
-              value={formData.description}
-              onChange={handleChange}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <input
-              type="text"
-              name="powerConsumption"
-              placeholder="Power Consumption (e.g., 10W)"
-              value={formData.powerConsumption}
-              onChange={handleChange}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <input
-              type="number"
-              name="quantity"
-              placeholder="Quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <button
-              onClick={updateDevice}
-              style={{ padding: '10px', borderRadius: '4px', background: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}
-            >
-              Update Device
-            </button>
-            <button
-              onClick={resetForm}
-              style={{ padding: '10px', borderRadius: '4px', background: '#f44336', color: 'white', border: 'none', cursor: 'pointer' }}
-            >
-              Cancel
-            </button>
+          {isEditing && (
+            <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', padding: '15px', background: '#f0f0f0', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
+              <h3>Edit Device</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input type="text" name="title" placeholder="Device Title" value={formData.title} onChange={handleChange} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                <input type="text" name="category" placeholder="Device Category" value={formData.category} onChange={handleChange} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                <input type="text" name="description" placeholder="Device Description" value={formData.description} onChange={handleChange} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                <input type="text" name="powerConsumption" placeholder="Power Consumption (e.g., 10W)" value={formData.powerConsumption} onChange={handleChange} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                <button onClick={updateDevice} style={{ padding: '10px', borderRadius: '4px', background: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}>Update Device</button>
+                <button onClick={resetForm} style={{ padding: '10px', borderRadius: '4px', background: '#f44336', color: 'white', border: 'none', cursor: 'pointer' }}>Cancel</button>
+              </div>
+            </div>
+          )}
+
+          <h3>Device List</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: devices.length === 1 ? 'flex-start' : 'center' }}>
+            {devices.map((device) => (
+              <div key={device._id} style={{ flex: '1 1 45%', minWidth: '250px', maxWidth: '400px', marginBottom: '15px', padding: '15px', background: '#fff', border: '1px solid #ddd', borderRadius: '8px', boxSizing: 'border-box', textAlign: 'center' }}>
+                <p><strong>Name:</strong> {device.deviceName}</p>
+                <p><strong>Voltage:</strong> {device.voltage}</p>
+                <p><strong>Category:</strong> {device.deviceType}</p>
+                <p><strong>Model Number:</strong> {device.modelNumber}</p>
+                <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                  <button onClick={() => startEditing(device)} style={{ padding: '8px', borderRadius: '4px', background: '#2196F3', color: 'white', border: 'none', cursor: 'pointer' }}>Edit</button>
+                  <button onClick={() => deleteDevice(device._id)} style={{ padding: '8px', borderRadius: '4px', background: '#f44336', color: 'white', border: 'none', cursor: 'pointer' }}>Delete</button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      )}
-
-      {/* Devices List */}
-      <h3>Device List</h3>
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '15px',
-        justifyContent: devices.length === 1 ? 'flex-start' : 'center'
-      }}>
-        {devices.map((device) => (
-          <div key={device.id} style={{
-            flex: '1 1 45%',
-            minWidth: '250px',
-            maxWidth: '400px',
-            marginBottom: '15px',
-            padding: '15px',
-            background: '#fff',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            boxSizing: 'border-box',
-            textAlign: 'center'
-          }}>
-            <p><strong>Name:</strong> {device.name}</p>
-            <p><strong>Title:</strong> {device.title}</p>
-            <p><strong>Quantity:</strong> {device.quantity}</p>
-            <p><strong>Power Consumption:</strong> {device.powerConsumption}</p>
-            <p><strong>Category:</strong> {device.category}</p>
-            <p><strong>Description:</strong> {device.description}</p>
-            <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-              <button
-                onClick={() => startEditing(device)}
-                style={{ padding: '8px', borderRadius: '4px', background: '#2196F3', color: 'white', border: 'none', cursor: 'pointer' }}
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteDevice(device.id)}
-                style={{ padding: '8px', borderRadius: '4px', background: '#f44336', color: 'white', border: 'none', cursor: 'pointer' }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
