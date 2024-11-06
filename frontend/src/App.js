@@ -12,6 +12,7 @@ import AddDevice from "./pages/AddDevice/AddDevices";
 import ProtectedRoute from './components/ProtectedRoute';
 import CheckAuth from './components/checkAuth';
 import NotFoundPage from './pages/Login/NotFoundPage';
+import DeviceManagementPage from './pages/DeviceManagementPage/DeviceManagementPage';
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/product_page" element={<ProtectedRoute><ProductPage /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/add-device" element={<ProtectedRoute><AddDevice /></ProtectedRoute>} />
+          <Route path="/device_management_page" element={<ProtectedRoute><DeviceManagementPage /></ProtectedRoute>} />
         </Routes>
        </AuthProvider>
     </Router>
