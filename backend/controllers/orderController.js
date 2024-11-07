@@ -1,4 +1,5 @@
-const { createOrderService, updateOrderStatusService,getOrderByIdService  } = require('../services/orderService');
+const { createOrderService, updateOrderService,getOrderByIdService,getCurrentOrderService,getOrdersByUserIdService  } = require('../services/orderService');
+const redisClient = require('../database/redisClient');
 
 // Create a new order
 const createOrder = async (req, res) => {
@@ -6,6 +7,8 @@ const createOrder = async (req, res) => {
 
   try {
     const newOrder = await createOrderService(user_id, products);
+    await redisClient.del(`orders:${req.user.id}:all`);
+    await redisClient.del(`orders:${req.user.id}:current`);
     res.status(201).json({ message: 'Order created successfully', order: newOrder });
   } catch (error) {
     res.status(500).json({ message: 'Error creating order', error: error.message });
@@ -13,15 +16,23 @@ const createOrder = async (req, res) => {
 };
 
 // Update an existing order status
-const updateOrderStatus = async (req, res) => {
+const updateOrder = async (req, res) => { 
   const { orderId } = req.params;
-  const { status } = req.body;
 
   try {
-    const updatedOrder = await updateOrderStatusService(orderId, status);
-    res.status(200).json({ message: 'Order status updated successfully', order: updatedOrder });
+
+
+      // Invalidate cache for the user's orders
+
+      await redisClient.del(`orders:${updatedOrder.user_id}:all`);
+      console.log('Deleted all user orders cache.');
+
+      await redisClient.del(`orders:${updatedOrder.user_id}:current`);
+      console.log('Deleted current order cache.');
+
+      res.status(200).json({ message: 'Order updated successfully', order: updatedOrder });
   } catch (error) {
-    res.status(400).json({ message: 'Error updating order', error: error.message });
+      res.status(400).json({ message: 'Error updating order', error: error.message });
   }
 };
 
@@ -35,4 +46,77 @@ const getOrderById = async (req, res) => {
     }
   };
 
-module.exports = { createOrder, updateOrderStatus,getOrderById };
+  const getOrdersByUserId = async (req, res) => {
+    const cacheKey = `orders:${req.user.id}`; // Unique key for each user's orders
+
+    try {
+        // Check if the orders data is in the cache
+        redisClient.get(cacheKey, async (err, cachedData) => {
+            if (err) {
+                console.error('Redis Get Error:', err);
+                return res.status(500).json({ message: 'Server error', error: err.message });
+            }
+
+            if (cachedData) {
+                console.log('Cache Hit:', cacheKey);
+                return res.status(200).json(JSON.parse(cachedData)); // Send cached data if found
+            }
+
+            // If no cache, fetch from the database
+            const orders = await getOrdersByUserIdService(req.user.id);
+            if (orders) {
+                // Cache the orders data for future requests
+                redisClient.set(cacheKey, JSON.stringify(orders), 'EX', 3600, (setErr, reply) => {
+                    if (setErr) {
+                        console.error('Redis Set Error:', setErr);
+                    } else {
+                        console.log('Data Cached at Key:', cacheKey, 'Reply:', reply); // Should log "OK"
+                    }
+                });
+            }
+
+            res.status(200).json(orders);
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving orders', error: error.message });
+    }
+};
+
+
+const getCurrentOrder = async (req, res) => {
+  const cacheKey = `currentOrder:${req.user.id}`; // Unique key for each user's current order
+
+  try {
+      // Check if the current order data is in the cache
+      redisClient.get(cacheKey, async (err, cachedData) => {
+          if (err) {
+              console.error('Redis Get Error:', err);
+              return res.status(500).json({ message: 'Server error', error: err.message });
+          }
+
+          if (cachedData) {
+              console.log('Cache Hit:', cacheKey);
+              return res.status(200).json(JSON.parse(cachedData)); // Send cached data if found
+          }
+
+          // If no cache, fetch from the database
+          const order = await getCurrentOrderService(req.user.id);
+          if (order) {
+              // Cache the current order data for future requests
+              redisClient.set(cacheKey, JSON.stringify(order), 'EX', 3600, (setErr, reply) => {
+                  if (setErr) {
+                      console.error('Redis Set Error:', setErr);
+                  } else {
+                      console.log('Data Cached at Key:', cacheKey, 'Reply:', reply); // Should log "OK"
+                  }
+              });
+          }
+
+          res.status(200).json(order);
+      });
+  } catch (error) {
+      res.status(500).json({ message: 'Error retrieving current order', error: error.message });
+  }
+};
+
+module.exports = { createOrder, updateOrder,getOrderById,getCurrentOrder,getOrdersByUserId };
