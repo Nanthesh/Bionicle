@@ -60,8 +60,16 @@ const Signin = () => {
       sessionStorage.setItem('token', response.data.token);
       navigate('/dashboard');
     } catch (error) {
-      if (error.response && error.response.data) {
-        setApiError(error.response.data.message || 'An error occurred during login.');
+      console.log('Full error object:', error); // Log the entire error object
+      
+      if (error.response) {
+        console.log('Error response data:', error.response.data); // Log the response data specifically
+        
+        if (error.response.status === 429) {
+          setApiError(error.response.data.description || "Too many login attempts. Please try again later.");
+        } else {
+          setApiError(error.response.data.message || 'An error occurred during login.');
+        }
       } else {
         setApiError('An unexpected error occurred. Please try again later.');
       }
