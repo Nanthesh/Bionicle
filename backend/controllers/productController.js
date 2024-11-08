@@ -73,7 +73,7 @@ const addProduct = async (req, res) => {
         const newProduct = await addProductService(req.body);
         
         // Invalidate the cache for all products to ensure the new product is included
-        await redisClient.del('products:/api/products'); // Adjust the key as needed
+        await redisClient.del('products:/api/products/'); // Adjust the key as needed
 
         res.status(201).json(newProduct);
     } catch (error) {
@@ -86,7 +86,8 @@ const updateProduct = async (req, res) => {
         const updatedProduct = await updateProductService(req.params.id, req.body);
         
         // Invalidate both the product list and the individual product cache
-        await redisClient.del('products:/api/products'); // Invalidate all products
+        await redisClient.del('products:/api/products/'); // Invalidate all products
+        console.log("all products cache deleted")
         await redisClient.del(`product:/api/products/${req.params.id}`); // Invalidate specific product
 
         res.status(200).json(updatedProduct);
@@ -100,7 +101,7 @@ const deleteProduct = async (req, res) => {
         const result = await deleteProductService(req.params.id);
 
         // Invalidate both the product list and the specific product cache
-        await redisClient.del('products:/api/products'); // Invalidate all products
+        await redisClient.del('products:/api/products/'); // Invalidate all products
         await redisClient.del(`product:/api/products/${req.params.id}`); // Invalidate specific product
 
         res.status(200).json({ message: 'Product deleted' });

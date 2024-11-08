@@ -1,9 +1,16 @@
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
+const User = require('../models/userModel');
 const mongoose = require('mongoose');
+const { sendEmail } = require('../services/emailService');
 
-const createOrderService = async (user_id, products) => {
+const createOrderService = async (user_id, products,shipping_address ) => {
   try {
+    console.log('Shipping address received in service:', shipping_address);
+
+    if (!shipping_address) {
+      throw new Error('Shipping address is undefined.');
+    }
     // Check if the user already has an order with status 'Pending'
     const existingOrder = await Order.findOne({ user_id, status: 'Pending' });
     if (existingOrder) {
@@ -22,13 +29,20 @@ const createOrderService = async (user_id, products) => {
       }
       total_price += product.price * item.quantity;
     }
-
+    const { address, city, state, zipCode, country } = shipping_address;
     // Create the new order
     const newOrder = new Order({
       user_id,
       products,
       total_price,
       status: 'Pending',
+      shipping_address: {
+        address,
+        city,
+        state,
+        zipCode,
+        country,
+      },
     });
 
     await newOrder.save();
@@ -65,10 +79,29 @@ const updateOrderService = async (orderId, updateFields) => {
                   product.stock_quantity -= item.quantity;
                   await product.save();
               }
+              const user = await User.findById(order.user_id);
+          if (!user) {
+            throw new Error('User not found');
           }
-          order.status = updateFields.status;
+  
+          // Prepare dynamic data for the email
+          const dynamicData = {
+            userName: user.name || 'Customer',
+            orderId: order._id,
+            totalPrice: order.total_price,
+            shippingAddress: `${order.shipping_address.address}, ${order.shipping_address.city}, ${order.shipping_address.state}, ${order.shipping_address.zipCode}, ${order.shipping_address.country}`,
+            orderLink: `http://localhost:3000/orders/${order._id}`,
+          };
+  
+          // Send order completion email
+          await sendEmail(user.email, 'Your Order is Completed', 'orderCompleted', dynamicData);
+        }
+  
+        // Update the order status
+        order.status = updateFields.status;
       }
-
+          
+         
       // Handle `products` update
       if (updateFields.products) {
           let total_price = 0;
@@ -147,14 +180,15 @@ const getOrdersByUserIdService = async (user_id) => {
 
 const getCurrentOrderService = async (user_id) => {
   try {
-      // Fetch only pending or in-progress orders for the specified user ID
-      const [currentOrder] = await findOrdersByUserId(user_id, ['Pending', 'In Progress']);
-      if (!currentOrder) {
-          throw new Error('No current order found');
-      }
-      return currentOrder;
+    // Fetch only pending or in-progress orders for the specified user ID
+    const [currentOrder] = await findOrdersByUserId(user_id, ['Pending', 'In Progress']);
+    if (!currentOrder) {
+      return { error: true, statusCode: 402, message: 'No current order found' };
+    }
+    return currentOrder;
   } catch (error) {
-      throw new Error(error.message);
+    console.error('Error in getCurrentOrderService:', error.message);
+    return { error: true, statusCode: 500, message: error.message };
   }
 };
 

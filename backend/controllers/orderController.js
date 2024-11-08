@@ -3,10 +3,24 @@ const redisClient = require('../database/redisClient');
 
 // Create a new order
 const createOrder = async (req, res) => {
-  const { user_id, products } = req.body;
+  const { user_id, products,shipping_address} = req.body;
+  console.log('Received request body:', req.body);
 
   try {
-    const newOrder = await createOrderService(user_id, products);
+    const newOrder = await createOrderService(user_id, products,shipping_address);
+    if (
+        !shipping_address ||
+        !shipping_address.address ||
+        !shipping_address.city ||
+        !shipping_address.state ||
+        !shipping_address.zipCode ||
+        !shipping_address.country
+      ) {
+        return res.status(400).json({
+          message: 'Error creating order',
+          error: 'All fields in shipping_address are required: address, city, state, zipCode, country.',
+        });
+    }
     await redisClient.del(`orders:${req.user.id}:all`);
     await redisClient.del(`orders:${req.user.id}:current`);
     res.status(201).json({ message: 'Order created successfully', order: newOrder });
@@ -18,10 +32,11 @@ const createOrder = async (req, res) => {
 // Update an existing order status
 const updateOrder = async (req, res) => { 
   const { orderId } = req.params;
+  const { status } = req.body;
 
   try {
 
-
+     const updatedOrder = await updateOrderService(orderId, { status });
       // Invalidate cache for the user's orders
 
       await redisClient.del(`orders:${updatedOrder.user_id}:all`);
