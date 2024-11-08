@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Drawer, List, ListItem, ListItemIcon, ListItemText, 
-  Typography, Box, IconButton, ListSubheader 
+  Typography, Box, IconButton, ListSubheader,Popover, MenuItem,Divider
 } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -13,9 +13,12 @@ import PersonIcon from '@mui/icons-material/Person';
 import Logo from "../assets/Logo.jpeg";
 import AddIcon from '@mui/icons-material/Add';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+
 const Sidebar = () => {
   const location = useLocation(); // Detect current route
   const [activeItem, setActiveItem] = useState(location.pathname);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const menuItems = [
     { text: 'Energy Dashboard', icon: <DashboardIcon />, link: '/dashboard' },
@@ -29,6 +32,16 @@ const Sidebar = () => {
   const handleItemClick = (link) => {
     setActiveItem(link);
   };
+  
+    // Handle Popover for Settings
+    const handleSettingsClick = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+  
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
+    const open = Boolean(anchorEl);
 
   return (
     <Drawer
@@ -117,7 +130,7 @@ const Sidebar = () => {
         <ListItem
           button
           component={Link}
-          to="/user-profile"
+          
           onClick={() => handleItemClick('/user-profile')}
           sx={{
             textDecoration: 'none',
@@ -132,17 +145,88 @@ const Sidebar = () => {
           <ListItemIcon sx={{ color: activeItem === '/user-profile' ? 'white' : 'black' }}>
             <PersonIcon />
           </ListItemIcon>
-          <ListItemText primary="User" secondary="View profile" />
+             <Box sx={{ display: 'flex', flexDirection: 'column', marginRight: 'auto' }}>
+            <Typography variant="body1">User</Typography>
+            <Typography
+              variant="body2"
+               component={Link}
+               to="/user-profile"
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+              sx={{
+                cursor: 'pointer',
+                color: 'gray',
+                textDecoration: 'none', 
+              }}
+            >
+              View profile
+            </Typography>
+          </Box>
+
 
           {/* Settings Icon next to User */}
           <IconButton
-            component={Link}
-            to="/settings"
+            onClick={handleSettingsClick}
             sx={{ color: 'black', marginLeft: 'auto' }}
           >
             <SettingsIcon />
           </IconButton>
         </ListItem>
+        <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        sx={{
+          padding: 0,
+          minWidth: '220px',
+          borderRadius: '8px',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <MenuItem
+          component={Link}
+          to="/orders"
+          sx={{ paddingY: 1.5, paddingX: 2.5 }}
+          onClick={handleClose}
+        >
+          <Typography variant="body1" sx={{ fontSize: '1rem' }}>My Orders</Typography>
+        </MenuItem>
+
+        <MenuItem
+          component={Link}
+          to="/user-profile"
+          sx={{ paddingY: 1.5, paddingX: 2.5 }}
+          onClick={handleClose}
+        >
+          <Typography variant="body1" sx={{ fontSize: '1rem' }}>My Profile</Typography>
+        </MenuItem>
+
+        <Divider />
+
+        <MenuItem
+          component={Link}
+          to="/Signin"
+          onClick={() => {
+            sessionStorage.removeItem('token'); // Remove the token from sessionStorage
+            handleClose();
+          }}
+          sx={{ paddingY: 1.5, paddingX: 2.5, display: 'flex', alignItems: 'center' }}
+        >
+          <ListItemText>
+            <Typography variant="body1" sx={{ fontSize: '1rem' }}>Logout</Typography>
+          </ListItemText>
+          <LogoutRoundedIcon sx={{ ml: 2, fontSize: '1.2rem', color: 'gray' }} />
+        </MenuItem>
+      </Popover>
       </Box>
     </Drawer>
   );
