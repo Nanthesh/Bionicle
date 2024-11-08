@@ -5,7 +5,7 @@ import { Pagination, Box, Grid, Typography } from '@mui/material';
 import ActiveLastBreadcrumb from '../../components/Breadcrumb.jsx';
 import ExploreMenu from '../../components/ExploreMenu.jsx';
 import axios from 'axios';
-
+import { Link } from 'react-router-dom';
 
 
 const ProductPage = () => {
@@ -83,7 +83,11 @@ const ProductPage = () => {
         <Grid container spacing={2}>
           {currentProducts.length > 0 ? (
             currentProducts.map((product) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+              <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
+                  <Link
+                  to={`/product_page/${product._id}`}
+                  style={{ textDecoration: 'none' }} 
+                >
                 <ProductCard
                   title={product.title}
                   description={product.description}
@@ -95,6 +99,7 @@ const ProductPage = () => {
                     flexDirection: 'column',
                   }}
                 />
+                </Link>
               </Grid>
             ))
           ) : (

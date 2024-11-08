@@ -26,7 +26,7 @@ const Sidebar = () => {
     { text: 'Our-Products', icon: <SpaIcon />, link: '/product_page' },
     { text: 'Energy Saving Tips', icon: <TipsAndUpdatesIcon />, link: '/energy-tips' },
     {text: 'Add Device', icon: <AddIcon/>, link :'/add-device'},
-    {text: "Device Management", icon :<ManageSearchIcon/>, link: ''}
+    {text: "Device Management", icon :<ManageSearchIcon/>, link: '/device_management_page'}
   ];
 
   const handleItemClick = (link) => {

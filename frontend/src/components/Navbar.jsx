@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -14,6 +15,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { Dialog, DialogActions, DialogContent, DialogContentText, Button } from '@mui/material';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -56,8 +58,22 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export default function PrimarySearchAppBar({ setSearchQuery }) {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
-
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate(); // Initialize useNavigate hook
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+
+  const handleOpenDialog = () => {
+    setOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpen(false);
+  };
+
+  const handleConfirmRedirect = () => {
+    setOpen(false);
+    navigate('/dashboard'); // Redirect on confirmation
+  };
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -69,6 +85,14 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value); // Pass search input to parent component
+  };
+
+  const handleClickCart = () => {
+    navigate('/cart');
+  };
+
+  const handleClickFavourite = () => {
+    navigate('/wishlist'); // Navigate to the Wishlist page
   };
 
   const mobileMenuId = 'primary-search-account-menu-mobile';
@@ -89,7 +113,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+        <IconButton size="large" aria-label="show 4 new mails" color="inherit" onClick={handleClickCart}>
           <Badge badgeContent={1} color="error">
             <AddShoppingCartIcon />
           </Badge>
@@ -97,11 +121,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
         <p>Cart</p>
       </MenuItem>
       <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show 17 new notifications"
-          color="inherit"
-        >
+        <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
           <Badge badgeContent={7} color="error">
             <NotificationsIcon />
           </Badge>
@@ -109,11 +129,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
         <p>Notifications</p>
       </MenuItem>
       <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show wishlist"
-          color="inherit"
-        >
+        <IconButton size="large" aria-label="show wishlist" color="inherit" onClick={handleClickFavourite}>
           <Badge badgeContent={7} color="error">
             <FavoriteBorderIcon />
           </Badge>
@@ -131,10 +147,37 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
             variant="h6"
             noWrap
             component="div"
-            sx={{ display: { xs: 'none', sm: 'block' } }}
+            sx={{ display: { xs: 'none', sm: 'block' }, color: 'white' }}
           >
-            Bionicle
+            <span
+              onClick={handleOpenDialog}
+              style={{ color: 'inherit', cursor: 'pointer', textDecoration: 'none' }}
+            >
+              Bionicle
+            </span>
           </Typography>
+
+          {/* Confirmation Dialog */}
+          <Dialog
+            open={open}
+            onClose={handleCloseDialog}
+            aria-labelledby="confirmation-dialog-title"
+            aria-describedby="confirmation-dialog-description"
+          >
+            <DialogContent>
+              <DialogContentText id="confirmation-dialog-description">
+                Are you sure you want to exit our product page?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog} color="secondary">
+                Cancel
+              </Button>
+              <Button onClick={handleConfirmRedirect} color="primary" autoFocus>
+                Yes, exit
+              </Button>
+            </DialogActions>
+          </Dialog>
 
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
             <Search sx={{ width: { xs: '100%', sm: '60%', md: '40%' } }}>
@@ -150,25 +193,17 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
           </Box>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+            <IconButton size="large" aria-label="show 4 new mails" color="inherit" onClick={handleClickCart}>
               <Badge badgeContent={4} color="error">
                 <AddShoppingCartIcon />
               </Badge>
             </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-            >
+            <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
               <Badge badgeContent={17} color="error">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show wishlist"
-              color="inherit"
-            >
+            <IconButton size="large" aria-label="show wishlist" color="inherit" onClick={handleClickFavourite}>
               <Badge badgeContent={7} color="error">
                 <FavoriteBorderIcon />
               </Badge>
