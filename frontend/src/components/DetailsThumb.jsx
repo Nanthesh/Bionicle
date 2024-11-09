@@ -3,6 +3,9 @@ import React, { Component } from 'react';
 export class DetailsThumb extends Component {
   render() {
     const { images, tab, myRef } = this.props;
+    if (!images || images.length === 0) {
+      return <p>No images available</p>;
+    }
     return (
       <div style={styles.thumb} ref={myRef}>
         {/* {images.map((img, index) => (

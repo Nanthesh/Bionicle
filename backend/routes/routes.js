@@ -11,6 +11,7 @@ const User = require('../models/userModels');
 const UserProfile = require('../models/userProfile');
 const router = express.Router();
 const { getUserProfile, updateUserProfile } = require('../controllers/userProfileController');
+const jwt = require('jsonwebtoken');
 // Register route
 router.post('/user/register', userController.createUserControllerFunc);
 

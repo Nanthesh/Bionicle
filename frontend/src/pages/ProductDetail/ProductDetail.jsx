@@ -18,10 +18,10 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const response = await axios.get(`http://localhost:4000/api/products/${productId}`, {
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           }
         });
         setProduct(response.data);
@@ -46,6 +46,7 @@ const ProductDetail = () => {
   if (error) {
     return <div>{error}</div>;
   }
+  
 
   return (
     <>
@@ -69,8 +70,8 @@ const ProductDetail = () => {
               <p style={styles.stock}>Stock: {product.stock_quantity}</p>
 
               <DetailsThumb
-                images={product.image}
-                tab={handleTab}
+                images={Array.isArray(product.image) ? product.image : [product.image]} 
+                tab={handleTab} 
                 myRef={myRef}
               />
               <Link to ='/cart'>
