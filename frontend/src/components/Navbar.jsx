@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
@@ -61,6 +61,25 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate hook
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  
+  useEffect(() => {
+    const updateWishlistCount = () => {
+      const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems')) || [];
+      setWishlistCount(wishlistItems.length);
+    };
+  
+    // Initial fetch of wishlist count
+    updateWishlistCount();
+  
+    // Listen for custom event
+    window.addEventListener('wishlistUpdated', updateWishlistCount);
+  
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('wishlistUpdated', updateWishlistCount);
+    };
+  }, []);
 
   const handleOpenDialog = () => {
     setOpen(true);
@@ -130,7 +149,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
       </MenuItem>
       <MenuItem>
         <IconButton size="large" aria-label="show wishlist" color="inherit" onClick={handleClickFavourite}>
-          <Badge badgeContent={7} color="error">
+          <Badge badgeContent={wishlistCount} color="error">
             <FavoriteBorderIcon />
           </Badge>
         </IconButton>
@@ -204,7 +223,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
               </Badge>
             </IconButton>
             <IconButton size="large" aria-label="show wishlist" color="inherit" onClick={handleClickFavourite}>
-              <Badge badgeContent={7} color="error">
+              <Badge badgeContent={wishlistCount} color="error">
                 <FavoriteBorderIcon />
               </Badge>
             </IconButton>
