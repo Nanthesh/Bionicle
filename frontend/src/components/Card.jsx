@@ -57,6 +57,39 @@ export default function ProductCard({ title, description, image, price,id }) {
         }
       };
 
+      const handleAddToCart = (event) => {
+        event.stopPropagation();
+        const product = { title, description, image, price, id };
+      
+        // Get current cart items from localStorage
+        const currentCart = JSON.parse(localStorage.getItem('cartItems')) || [];
+      
+        // Check if the product is already in the cart
+        const existingItem = currentCart.find(item => item.id === id);
+      
+        if (existingItem) {
+          // If the item already exists, update its quantity
+          existingItem.quantity += 1;
+        } else {
+          // If the item does not exist, add it to the cart with quantity 1
+          currentCart.push({ ...product, quantity: 1 });
+        }
+      
+        // Save updated cart to localStorage
+        localStorage.setItem('cartItems', JSON.stringify(currentCart));
+      
+        // Notify user
+        toast.success(`${title} has been added to your cart!`, {
+          position: "top-center",
+          autoClose: 1500,
+          theme: "colored",
+        });
+      
+        // Emit custom event for cart update
+        window.dispatchEvent(new Event('cartUpdated'));
+      };
+    
+
     return (
 
         <Card sx={{ maxWidth: 345, height: 350, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', margin: '20px 10px' }}>
@@ -87,7 +120,7 @@ export default function ProductCard({ title, description, image, price,id }) {
                 <IconButton aria-label="add to wishlist" onClick={handleWishlistClick} >
                      <FavoriteIcon color={isInWishlist ? 'error' : 'inherit'} />
                 </IconButton>
-                <IconButton aria-label="add to cart">
+                <IconButton aria-label="add to cart" onClick={handleAddToCart}>
                     <AddShoppingCartIcon />
                 </IconButton>
             </Box>

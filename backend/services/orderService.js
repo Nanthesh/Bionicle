@@ -27,15 +27,16 @@ const createOrderService = async (user_id, products,shipping_address ) => {
       if (product.stock_quantity < item.quantity) {
         throw new Error(`Insufficient stock for product ID ${item.product_id}. Available quantity: ${product.stock_quantity}`);
       }
-      total_price += product.price * item.quantity;
+      total_price += Number(((product.price * item.quantity) * 1.13).toFixed(2));
     }
     const { address, city, state, zipCode, country } = shipping_address;
+    total_price=total_price.toFixed(2)
     // Create the new order
     const newOrder = new Order({
       user_id,
       products,
       total_price,
-      status: 'Pending',
+      status: 'Completed',
       shipping_address: {
         address,
         city,
@@ -46,6 +47,24 @@ const createOrderService = async (user_id, products,shipping_address ) => {
     });
 
     await newOrder.save();
+       // Fetch the user information for the email
+       const user = await User.findById(user_id);
+       if (!user) {
+         throw new Error('User not found');
+       }
+   
+       // Prepare dynamic data for the email
+       const dynamicData = {
+         userName: user.name || 'Customer',
+         orderId: newOrder._id,
+         totalPrice: newOrder.total_price,
+         shippingAddress: `${newOrder.shipping_address.address}, ${newOrder.shipping_address.city}, ${newOrder.shipping_address.state}, ${newOrder.shipping_address.zipCode}, ${newOrder.shipping_address.country}`,
+         orderLink: `http://localhost:4000/orders/${newOrder._id}`,
+       };
+   
+       // Send order creation email
+       await sendEmail(user.email, 'Your Order is Placed', 'orderCompleted', dynamicData);
+   
     return newOrder;
   } catch (error) {
     throw new Error(error.message);
@@ -90,7 +109,7 @@ const updateOrderService = async (orderId, updateFields) => {
             orderId: order._id,
             totalPrice: order.total_price,
             shippingAddress: `${order.shipping_address.address}, ${order.shipping_address.city}, ${order.shipping_address.state}, ${order.shipping_address.zipCode}, ${order.shipping_address.country}`,
-            orderLink: `http://localhost:3000/orders/${order._id}`,
+            orderLink: `http://localhost:4000/orders/${order._id}`,
           };
   
           // Send order completion email

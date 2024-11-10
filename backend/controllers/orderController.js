@@ -3,7 +3,8 @@ const redisClient = require('../database/redisClient');
 
 // Create a new order
 const createOrder = async (req, res) => {
-  const { user_id, products,shipping_address} = req.body;
+  const { products,shipping_address} = req.body;
+  const user_id = req.user.id; 
   console.log('Received request body:', req.body);
 
   try {

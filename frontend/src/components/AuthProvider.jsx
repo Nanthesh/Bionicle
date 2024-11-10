@@ -12,11 +12,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const validateToken = async () => {
       const token = sessionStorage.getItem('token');
-      console.log('Token in sessionStorage:', sessionStorage.getItem('token'));
+      console.log('Token in sessionStorage:', token);
+
       if (!token) {
         setIsAuthenticated(false);
         setLoading(false);
-        return; // Do not navigate inside this function to avoid loops
+        navigate('/signin');
+        return;
       }
 
       try {
@@ -25,23 +27,26 @@ export const AuthProvider = ({ children }) => {
             Authorization: `Bearer ${token}`,
           },
         });
+
         if (response.status === 200) {
           setIsAuthenticated(true);
         } else {
           sessionStorage.removeItem('token');
           setIsAuthenticated(false);
+          navigate('/signin'); // Redirect to login if the token is invalid
         }
       } catch (error) {
         console.error('Token validation failed:', error);
-       // sessionStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         setIsAuthenticated(false);
+        navigate('/signin'); // Redirect to login if token validation fails
       } finally {
         setLoading(false);
       }
     };
 
     validateToken();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return <div>Loading...</div>; // Render a loading indicator while checking authentication
