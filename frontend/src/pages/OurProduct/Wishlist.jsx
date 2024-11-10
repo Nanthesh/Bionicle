@@ -3,6 +3,7 @@ import PrimarySearchAppBar from '../../components/Navbar.jsx';
 import ActiveLastBreadcrumb from '../../components/Breadcrumb.jsx';
 import { Box, Grid, Typography, Button, Card, CardMedia, CardContent, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 
 const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -19,7 +20,35 @@ const Wishlist = () => {
     localStorage.setItem('wishlistItems', JSON.stringify(updatedWishlist)); // Update in localStorage
     setWishlistItems(updatedWishlist); // Update state
   };
+  // Function to add product to cart
+  const handleAddToCart = (product) => {
+    // Get current cart items from localStorage
+    const currentCart = JSON.parse(localStorage.getItem('cartItems')) || [];
 
+    // Check if the product is already in the cart
+    const existingItemIndex = currentCart.findIndex(item => item.id === product.id);
+
+    if (existingItemIndex >= 0) {
+      // Update the quantity if the product already exists
+      currentCart[existingItemIndex].quantity += 1;
+    } else {
+      // Add the new product to the cart
+      currentCart.push({ id: product.id, title: product.title, price: product.price, image: product.image, quantity: 1 });
+    }
+
+    // Save the updated cart to localStorage
+    localStorage.setItem('cartItems', JSON.stringify(currentCart));
+
+    // Show success notification
+    toast.success(`${product.title} has been added to your cart!`, {
+      position: 'top-center',
+      autoClose: 1500,
+      theme: 'colored',
+    });
+
+  // Emit custom event for cart update
+  window.dispatchEvent(new Event('cartUpdated'));
+};
   // Render the wishlist items
   return (
     <div>
@@ -57,7 +86,7 @@ const Wishlist = () => {
                       color="primary"
                       sx={{ marginBottom: 2, width: '100%' }}
                       onClick={() => {
-                        // Handle adding to cart logic here
+                        handleAddToCart(product)
                       }}
                     >
                       Add to Cart
