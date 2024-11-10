@@ -62,6 +62,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
   const navigate = useNavigate(); // Initialize useNavigate hook
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const [wishlistCount, setWishlistCount] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
   
   useEffect(() => {
     const updateWishlistCount = () => {
@@ -78,6 +79,25 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
     // Cleanup event listener on component unmount
     return () => {
       window.removeEventListener('wishlistUpdated', updateWishlistCount);
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+      const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+      setCartCount(totalQuantity);
+    };
+  
+    // Initial fetch of cart count
+    updateCartCount();
+  
+    // Listen for custom event 'cartUpdated'
+    window.addEventListener('cartUpdated', updateCartCount);
+  
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('cartUpdated', updateCartCount);
     };
   }, []);
 
@@ -212,8 +232,8 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
           </Box>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <IconButton size="large" aria-label="show 4 new mails" color="inherit" onClick={handleClickCart}>
-              <Badge badgeContent={4} color="error">
+          <IconButton size="large" aria-label="show cart items" color="inherit" onClick={handleClickCart}>
+             <Badge badgeContent={cartCount} color="error">
                 <AddShoppingCartIcon />
               </Badge>
             </IconButton>

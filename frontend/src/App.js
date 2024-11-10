@@ -16,8 +16,12 @@ import DeviceManagementPage from './pages/DeviceManagementPage/DeviceManagementP
 import Cart from './pages/OurProduct/Cart';
 import Wishlist from './pages/OurProduct/Wishlist';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
+import Checkout from './pages/Checkout/Checkout';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
 const App = () => {
+  const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
   return (
     
     <Router>
@@ -40,6 +44,7 @@ const App = () => {
           <Route path="/cart" element={<ProtectedRoute><Cart/></ProtectedRoute>} />
           <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
           <Route path="/product_page/:productId" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
+          <Route path="/checkout" element={<Elements stripe={stripePromise}><ProtectedRoute><Checkout /></ProtectedRoute></Elements>} />
         </Routes>
        </AuthProvider>
     </Router>
