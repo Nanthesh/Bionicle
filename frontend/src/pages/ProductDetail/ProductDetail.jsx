@@ -55,7 +55,8 @@ const ProductDetail = () => {
         {product && (
           <div style={styles.details}>
             <div style={styles.bigImg}>
-              <img src={product.image[0]} alt={product.title} style={styles.image} />
+              {/* <img src={product.image[0]} alt={product.title} style={styles.image} /> */}
+              <img src={product.image} alt={product.title} style={styles.image} />
             </div>
 
             <div style={styles.box}>

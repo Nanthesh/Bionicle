@@ -5,7 +5,7 @@ export class DetailsThumb extends Component {
     const { images, tab, myRef } = this.props;
     return (
       <div style={styles.thumb} ref={myRef}>
-        {images.map((img, index) => (
+        {/* {images.map((img, index) => (
           <img
             src={img}
             alt="Product Thumbnail"
@@ -13,7 +13,13 @@ export class DetailsThumb extends Component {
             onClick={() => tab(index)} // Update large image on click
             style={styles.thumbnail}
           />
-        ))}
+        ))} */}
+        <img
+          src={images} // Display the provided image or fallback image if none
+          alt="Product Thumbnail"
+          onClick={() => tab(0)} // Assume index 0 for a single image
+          style={styles.thumbnail}
+        />
       </div>
     );
   }
