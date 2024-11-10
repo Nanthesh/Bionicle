@@ -19,7 +19,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { text: 'Energy Dashboard', icon: <DashboardIcon />, link: '/dashboard' },
-    { text: 'Energy Usage', icon: <TipsAndUpdatesIcon />, link: '/energy-usage' },
+    { text: 'Energy Calculator ', icon: <TipsAndUpdatesIcon />, link: '/energycalculator' },
     { text: 'Our-Products', icon: <SpaIcon />, link: '/product_page' },
     { text: 'Energy Saving Tips', icon: <TipsAndUpdatesIcon />, link: '/energy-tips' },
     {text: 'Add Device', icon: <AddIcon/>, link :'/add-device'},

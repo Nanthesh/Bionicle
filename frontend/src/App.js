@@ -12,6 +12,7 @@ import AddDevice from "./pages/AddDevice/AddDevices";
 import ProtectedRoute from './components/ProtectedRoute';
 import CheckAuth from './components/checkAuth';
 import NotFoundPage from './pages/Login/NotFoundPage';
+import EnergyCalculation from './pages/EnergyCalculation/EnergyCalculation';
 
 const App = () => {
   return (
@@ -32,6 +33,8 @@ const App = () => {
           <Route path="/product_page" element={<ProtectedRoute><ProductPage /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/add-device" element={<ProtectedRoute><AddDevice /></ProtectedRoute>} />
+          <Route path="/energycalculator" element=<EnergyCalculation/> />
+
         </Routes>
        </AuthProvider>
     </Router>
