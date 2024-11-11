@@ -4,6 +4,7 @@ const fs = require('fs');
 const sgMail = require('@sendgrid/mail');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
+const { sendEmail } = require('../services/emailService');
 
 const SECRET_KEY = process.env.JWT_SECRET || 'random#secret';
 
@@ -146,16 +147,21 @@ const resetPasswordService = async (token, newPassword) => {
 };
 
 // Function to send password reset email
-const sendLocalResetEmail = async (email, resetUrl) => {
-  const msg = {
-    to: email,
-    from: 'bionicle658@gmail.com', // Your verified sender email
-    subject: 'Password Reset Request',
-    text: `You requested a password reset. Click the following link to reset your password: ${resetUrl}`,
-    html: `<strong>Click the link to reset your password: <a href="${resetUrl}">Reset Password</a></strong>`,
+const sendLocalResetEmail = async (email, userName, resetUrl) => {
+  const subject = 'Password Reset Request';
+  const templateName = 'resetPassword';
+  const dynamicData = {
+    userName,
+    resetUrl,
   };
 
-  await sgMail.send(msg);
+  try {
+    await sendEmail(email, subject, templateName, dynamicData);
+    console.log(`Password reset email sent to ${email}`);
+  } catch (error) {
+    console.error(`Failed to send password reset email: ${error.message}`);
+    throw error;
+  }
 };
 
 // Forgot password service
@@ -178,7 +184,7 @@ const forgotPasswordService = async (email) => {
     user.passwordResetExpires = Date.now() + 3600000; // 1 hour from now
     await user.save();
 
-    await sendLocalResetEmail(email, resetUrl);
+    await sendLocalResetEmail(email,user.firstName, resetUrl);
     return { success: true, message: 'Password reset email sent for local user. Check your inbox.' };
   } catch (error) {
     console.error("Error in forgotPasswordService:", error);

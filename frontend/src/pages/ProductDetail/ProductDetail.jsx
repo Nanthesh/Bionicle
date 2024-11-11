@@ -6,6 +6,7 @@ import PrimarySearchAppBar from '../../components/Navbar.jsx';
 import ActiveLastBreadcrumb from '../../components/Breadcrumb.jsx';
 import Footer from '../../components/Footer.jsx';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -18,10 +19,12 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
+  
         const response = await axios.get(`http://localhost:4000/api/products/${productId}`, {
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+
+            Authorization: `Bearer ${token}`,
           }
         });
         setProduct(response.data);
@@ -34,6 +37,64 @@ const ProductDetail = () => {
     };
     fetchProduct();
   }, [productId]);
+  const handleAddToCart = (event) => {
+    event.stopPropagation();
+  
+    // Check if product data is available
+    if (!product) {
+      toast.error('Product details are not available.');
+      console.error('Product data is missing:', product);
+      return;
+    }
+  
+    // Use the correct identifier (id or _id based on your API response)
+    const productId = product.id || product._id;
+  
+    // Ensure the product ID exists
+    if (!productId) {
+      toast.error('Invalid product ID.');
+      console.error('Invalid product ID:', productId);
+      return;
+    }
+  
+    // Get the current cart items from localStorage
+    const currentCart = JSON.parse(localStorage.getItem('cartItems')) || [];
+    console.log('Current cart before update:', currentCart);
+  
+    // Find if the product is already in the cart
+    const existingItemIndex = currentCart.findIndex((item) => item.id === productId);
+  
+    if (existingItemIndex >= 0) {
+      // Update the quantity if the product already exists in the cart
+      currentCart[existingItemIndex].quantity += 1;
+      console.log(`Increased quantity for product ID ${productId}`);
+    } else {
+      // Add the new product to the cart
+      currentCart.push({
+        id: productId,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        quantity: 1,
+      });
+      console.log(`Added new product to cart: ${product.title}`);
+    }
+  
+    // Save the updated cart to localStorage
+    localStorage.setItem('cartItems', JSON.stringify(currentCart));
+    console.log('Updated cart:', currentCart);
+  
+    // Show success notification
+    toast.success(`${product.title} has been added to your cart!`, {
+      position: 'top-center',
+      autoClose: 1500,
+      theme: 'colored',
+    });
+  
+    // Emit custom event for cart update
+    window.dispatchEvent(new Event('cartUpdated'));
+  };
+  
 
   const handleTab = (index) => {
     // handle image tab switching
@@ -46,6 +107,8 @@ const ProductDetail = () => {
   if (error) {
     return <div>{error}</div>;
   }
+  
+  
 
   return (
     <>
@@ -69,12 +132,12 @@ const ProductDetail = () => {
               <p style={styles.stock}>Stock: {product.stock_quantity}</p>
 
               <DetailsThumb
-                images={product.image}
-                tab={handleTab}
+                images={Array.isArray(product.image) ? product.image : [product.image]} 
+                tab={handleTab} 
                 myRef={myRef}
               />
               <Link to ='/cart'>
-              <button style={styles.cart}>Add to cart</button>
+              <button style={styles.cart} onClick={handleAddToCart}>Add to cart</button>
               </Link>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
@@ -61,6 +61,45 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate hook
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
+  
+  useEffect(() => {
+    const updateWishlistCount = () => {
+      const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems')) || [];
+      setWishlistCount(wishlistItems.length);
+    };
+  
+    // Initial fetch of wishlist count
+    updateWishlistCount();
+  
+    // Listen for custom event
+    window.addEventListener('wishlistUpdated', updateWishlistCount);
+  
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('wishlistUpdated', updateWishlistCount);
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+      const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+      setCartCount(totalQuantity);
+    };
+  
+    // Initial fetch of cart count
+    updateCartCount();
+  
+    // Listen for custom event 'cartUpdated'
+    window.addEventListener('cartUpdated', updateCartCount);
+  
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('cartUpdated', updateCartCount);
+    };
+  }, []);
 
   const handleOpenDialog = () => {
     setOpen(true);
@@ -130,7 +169,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
       </MenuItem>
       <MenuItem>
         <IconButton size="large" aria-label="show wishlist" color="inherit" onClick={handleClickFavourite}>
-          <Badge badgeContent={7} color="error">
+          <Badge badgeContent={wishlistCount} color="error">
             <FavoriteBorderIcon />
           </Badge>
         </IconButton>
@@ -193,8 +232,8 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
           </Box>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <IconButton size="large" aria-label="show 4 new mails" color="inherit" onClick={handleClickCart}>
-              <Badge badgeContent={4} color="error">
+          <IconButton size="large" aria-label="show cart items" color="inherit" onClick={handleClickCart}>
+             <Badge badgeContent={cartCount} color="error">
                 <AddShoppingCartIcon />
               </Badge>
             </IconButton>
@@ -204,7 +243,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
               </Badge>
             </IconButton>
             <IconButton size="large" aria-label="show wishlist" color="inherit" onClick={handleClickFavourite}>
-              <Badge badgeContent={7} color="error">
+              <Badge badgeContent={wishlistCount} color="error">
                 <FavoriteBorderIcon />
               </Badge>
             </IconButton>

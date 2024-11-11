@@ -9,6 +9,8 @@ const deviceRoutes = require("./routes/DeviceRoutes");
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const authRoutes = require('./routes/authRoutes')
+const paymentRoutes = require('./routes/paymentRoutes'); 
+
 dotenv.config();
 
 app.use(cors());
@@ -30,6 +32,7 @@ app.use('/api', deviceRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api', authRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.listen(4000, () => {
   console.log('Server running on port 4000');

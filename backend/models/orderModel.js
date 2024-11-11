@@ -24,7 +24,14 @@ const orderSchema = new mongoose.Schema({
         type: String,
         enum: ['Pending', 'Completed', 'Cancelled'],
         default: 'Pending',
-    }
+    },
+    shipping_address: {
+        address: { type: String, required: true }, // e.g., "123 Main St"
+        city: { type: String, required: true },    // e.g., "Toronto"
+        state: { type: String, required: true },   // e.g., "Ontario"
+        zipCode: { type: String, required: true }, // e.g., "M1B 2K1"
+        country: { type: String, required: true }, // e.g., "Canada"
+      },
 });
 
 module.exports = mongoose.model('Order', orderSchema);

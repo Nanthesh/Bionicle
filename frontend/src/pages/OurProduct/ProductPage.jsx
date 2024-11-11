@@ -5,7 +5,10 @@ import { Pagination, Box, Grid, Typography } from '@mui/material';
 import ActiveLastBreadcrumb from '../../components/Breadcrumb.jsx';
 import ExploreMenu from '../../components/ExploreMenu.jsx';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 
 const ProductPage = () => {
@@ -21,10 +24,10 @@ const ProductPage = () => {
       // Fetch products from the API when the component mounts
       const fetchProducts = async () => {
         try {
-          const token = localStorage.getItem('token');
+          const token = sessionStorage.getItem('token');
           const response = await axios.get('http://localhost:4000/api/products', {
             headers: {
-              Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+              Authorization: `Bearer ${token}`,
             }
           });
           setProducts(response.data);
@@ -71,35 +74,31 @@ const ProductPage = () => {
         </Typography>
       );
     }
-  
-  
+
     return (
       <div>
+        
       <PrimarySearchAppBar setSearchQuery={setSearchQuery} />
       <ActiveLastBreadcrumb />
       <ExploreMenu category={category} setCategory={setCategory} />
-    
+      <ToastContainer />
       <Box sx={{ flexGrow: 1, padding: 2, marginBottom: '10px' }}>
         <Grid container spacing={2}>
           {currentProducts.length > 0 ? (
             currentProducts.map((product) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
-                  <Link
-                  to={`/product_page/${product._id}`}
-                  style={{ textDecoration: 'none' }} 
-                >
                 <ProductCard
                   title={product.title}
                   description={product.description}
                   image={product.image}
                   price={product.price}
+                  id={product._id}
                   sx={{
                     height: '100%', // Ensure the card takes the full height of the grid item
                     display: 'flex',
                     flexDirection: 'column',
                   }}
                 />
-                </Link>
               </Grid>
             ))
           ) : (
