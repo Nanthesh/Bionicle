@@ -25,11 +25,11 @@ const AddDevice = () => {
         setDeviceType(e.target.value);
     };
 
-    const handleDevice =async()=>
+  const handleDevice = async () => 
     {
         try
         {
-            const response= await axios.post('http://localhost:4000/api/devices', {
+            const response = await axios.post('http://localhost:4000/api/devices', {
                 deviceName,
                 deviceType,
                 modelNumber,
@@ -40,10 +40,10 @@ const AddDevice = () => {
             setDeviceType('');
             setModelNumber('');
             setVoltage('');
-        }
-        catch (error)
-        {
-            console.error('Error adding device:', error);
+        } 
+        catch (error) 
+         {
+              console.error('Error adding device:', error);
         }
     };
   return (

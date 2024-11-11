@@ -1,16 +1,34 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose');
 
-const energyCalculator = new Schema({
-        amp:
-         {
-            type: Number,
-            require: true
-         },
-         voltage:
-         {
-            type:Number
-         }
-
+const energyCalculationSchema = new mongoose.Schema({
+    amps: {
+        type: Number,
+        required: true,
+    },
+    voltage: {
+        type: Number,
+        required: true,
+    },
+    hoursPerDay: {
+        type: Number,
+        required: true,
+    },
+    costPerKwh: {
+        type: Number,
+        required: true,
+    },
+    energyConsumed: {
+        type: Number,
+        required: true,
+    },
+    totalCost: {
+        type: Number,
+        required: true,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
 });
 
+module.exports = mongoose.model('EnergyCalculation', energyCalculationSchema);
