@@ -10,7 +10,7 @@ const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const authRoutes = require('./routes/authRoutes')
 const paymentRoutes = require('./routes/paymentRoutes'); 
-
+const energyCalculatorRoutes = require('./routes/energyCalculatorRoutes');
 dotenv.config();
 
 app.use(cors());
@@ -33,7 +33,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api', authRoutes);
 app.use('/api/payments', paymentRoutes);
-
+app.use('/api', energyCalculatorRoutes);
 app.listen(4000, () => {
   console.log('Server running on port 4000');
 });
