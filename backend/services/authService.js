@@ -1,11 +1,12 @@
-// authService.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModels');
-const { jwtSecret } = require('../config/app.keys');
 const fs = require('fs');
 const sgMail = require('@sendgrid/mail');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
+const { sendEmail } = require('../services/emailService');
+
+const SECRET_KEY = process.env.JWT_SECRET || 'random#secret';
 
 // Function to find a user by email
 const findUserByEmail = async (email) => {
@@ -20,8 +21,8 @@ const validatePassword = async (user, password) => {
 // Function to generate a JWT token
 const generateToken = (user) => {
   return jwt.sign(
-    { users_id: user.users_id, email: user.email, username: user.username },
-    jwtSecret,
+    { id: user._id, email: user.email, username: user.username }, // Use _id instead of users_id
+    SECRET_KEY,
     { expiresIn: '1h' }
   );
 };
@@ -94,8 +95,8 @@ const googleLoginService = async (userData) => {
 
     // Generate a JWT token
     const token = jwt.sign(
-      { users_id: user.users_id, email: user.email, username: user.userName },
-      jwtSecret,
+      { id: user._id, email: user.email, username: user.userName }, // Changed to _id
+      SECRET_KEY,
       { expiresIn: '1h' }
     );
 
@@ -107,11 +108,16 @@ const googleLoginService = async (userData) => {
   }
 };
 
+// Set SendGrid API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const resetPasswordService = async (token, newPassword) => {
   try {
-    const decoded = jwt.verify(token, jwtSecret);
+    console.log('Received token:', token); // Log the token received for debugging
+
+    const decoded = jwt.verify(token, SECRET_KEY);
+    console.log('Decoded token:', decoded); // Log the decoded payload
+
     const user = await User.findOne({
       email: decoded.email,
       passwordResetToken: token,
@@ -119,6 +125,7 @@ const resetPasswordService = async (token, newPassword) => {
     });
 
     if (!user) {
+      console.log('User not found or token is invalid/expired');
       return { success: false, message: 'Invalid or expired token' };
     }
 
@@ -139,18 +146,25 @@ const resetPasswordService = async (token, newPassword) => {
   }
 };
 
-const sendLocalResetEmail = async (email, resetUrl) => {
-  const msg = {
-    to: email,
-    from: 'bionicle658@gmail.com', // Your verified sender email
-    subject: 'Password Reset Request',
-    text: `You requested a password reset. Click the following link to reset your password: ${resetUrl}`,
-    html: `<strong>Click the link to reset your password: <a href="${resetUrl}">Reset Password</a></strong>`,
+// Function to send password reset email
+const sendLocalResetEmail = async (email, userName, resetUrl) => {
+  const subject = 'Password Reset Request';
+  const templateName = 'resetPassword';
+  const dynamicData = {
+    userName,
+    resetUrl,
   };
 
-  await sgMail.send(msg);
+  try {
+    await sendEmail(email, subject, templateName, dynamicData);
+    console.log(`Password reset email sent to ${email}`);
+  } catch (error) {
+    console.error(`Failed to send password reset email: ${error.message}`);
+    throw error;
+  }
 };
 
+// Forgot password service
 const forgotPasswordService = async (email) => {
   try {
     const user = await User.findOne({ email });
@@ -162,7 +176,7 @@ const forgotPasswordService = async (email) => {
       return { success: false, message: 'This user uses Google Auth. Please reset your password using Google.' };
     }
 
-    const resetToken = jwt.sign({ email: user.email }, jwtSecret, { expiresIn: '1h' });
+    const resetToken = jwt.sign({ email: user.email }, SECRET_KEY, { expiresIn: '1h' });
     const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
 
     // Store the token and expiration in the database
@@ -170,7 +184,7 @@ const forgotPasswordService = async (email) => {
     user.passwordResetExpires = Date.now() + 3600000; // 1 hour from now
     await user.save();
 
-    await sendLocalResetEmail(email, resetUrl);
+    await sendLocalResetEmail(email,user.firstName, resetUrl);
     return { success: true, message: 'Password reset email sent for local user. Check your inbox.' };
   } catch (error) {
     console.error("Error in forgotPasswordService:", error);
@@ -178,7 +192,7 @@ const forgotPasswordService = async (email) => {
   }
 };
 
-
+// Service function to check user type (local vs Google)
 const checkUserTypeService = async (email) => {
   try {
     // Find user by email in the database
@@ -198,11 +212,28 @@ const checkUserTypeService = async (email) => {
   }
 };
 
+// Middleware to verify token and authenticate users
+const authMiddleware = (req, res, next) => {
+  const token = req.header('Authorization').replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ message: 'No token, authorization denied' });
+  }
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Invalid token', error: err.message });
+  }
+};
+
+// Export all services and middleware
 module.exports = {
   loginService,
   logFailedAttempt,
-  googleLoginService, // Export the new Google Login Service
+  googleLoginService,
   forgotPasswordService,
   resetPasswordService,
-  checkUserTypeService
+  checkUserTypeService,
+  authMiddleware, // Ensure the auth middleware is exported
 };

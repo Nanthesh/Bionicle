@@ -4,10 +4,10 @@ import './styles.css';
 // Simulated menu list (normally you would fetch this from a database)
 const menu_list = [
   { menu_name: 'Bulb', menu_image: 'https://m.media-amazon.com/images/I/717Yp2t-R9L._SL1500_.jpg' },
-  { menu_name: 'Door Bell', menu_image: 'https://m.media-amazon.com/images/I/717Yp2t-R9L._SL1500_.jpg' },
-  { menu_name: 'TV', menu_image: 'https://m.media-amazon.com/images/I/717Yp2t-R9L._SL1500_.jpg' },
-  { menu_name: 'Doors', menu_image: 'https://m.media-amazon.com/images/I/717Yp2t-R9L._SL1500_.jpg' },
-  { menu_name: 'Bulba', menu_image: 'https://m.media-amazon.com/images/I/717Yp2t-R9L._SL1500_.jpg' },
+  { menu_name: 'Door Bell', menu_image: 'https://img.kwcdn.com/product/open/2024-09-10/1725967404103-c49d0118d92643ee9860ad41d396113a-goods.jpeg?imageView2/2/w/264/q/70/format/webp' },
+  { menu_name: 'TV', menu_image: 'https://m.media-amazon.com/images/I/91snjIt0nUL._AC_SX679_.jpg' },
+  { menu_name: 'Doors', menu_image: 'https://m.media-amazon.com/images/I/71BLt4LbTIL._AC_UL320_.jpg' },
+  { menu_name: 'Camera', menu_image: 'https://m.media-amazon.com/images/I/61NvMBwiPPL._AC_UL320_.jpg' },
 ];
 
 const ExploreMenu = ({ category, setCategory }) => {
