@@ -54,7 +54,7 @@ const products = [
         amp: 2.2,
     },
     {
-        title: 'Philips 4K Ultra HD Roku TV',
+        title: 'Philips 4K Ultra TV',
         description: 'Philips 4K Ultra HD TV with Roku integration for seamless streaming.',
         image: '/assets/tv4.jpeg',
         price: 549.99,
@@ -144,7 +144,7 @@ const products = [
         amp: 0.7,
     },
     {
-        title: 'Smart Doorbell with Easy Installation',
+        title: 'Smart Doorbell',
         description: 'Easy to install smart doorbell with night vision and two-way audio.',
         image: '/assets/doorbell3.jpeg',
         price: 89.99,
