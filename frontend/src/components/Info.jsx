@@ -8,9 +8,11 @@ const Info = () => {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
 
+
   // Load cart items from localStorage
   useEffect(() => {
-    const storedItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const userEmail = sessionStorage.getItem('userEmail');
+    const storedItems = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
     setCartItems(storedItems);
 
     // Calculate total price

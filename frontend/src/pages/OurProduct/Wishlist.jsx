@@ -7,23 +7,24 @@ import { toast } from 'react-toastify';
 
 const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
+  const userEmail = sessionStorage.getItem('userEmail');
 
   // Load wishlistItems from localStorage on component mount
   useEffect(() => {
-    const storedWishlistItems = JSON.parse(localStorage.getItem('wishlistItems')) || [];
+    const storedWishlistItems = JSON.parse(localStorage.getItem(`wishlistItems${userEmail}`)) || [];
     setWishlistItems(storedWishlistItems);
   }, []);
 
   // Function to remove product from wishlist
   const handleRemoveFromWishlist = (productId) => {
     const updatedWishlist = wishlistItems.filter(item => item.id !== productId);
-    localStorage.setItem('wishlistItems', JSON.stringify(updatedWishlist)); // Update in localStorage
+    localStorage.setItem(`wishlistItems${userEmail}`, JSON.stringify(updatedWishlist)); // Update in localStorage
     setWishlistItems(updatedWishlist); // Update state
   };
   // Function to add product to cart
   const handleAddToCart = (product) => {
     // Get current cart items from localStorage
-    const currentCart = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const currentCart = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
 
     // Check if the product is already in the cart
     const existingItemIndex = currentCart.findIndex(item => item.id === product.id);
@@ -37,7 +38,7 @@ const Wishlist = () => {
     }
 
     // Save the updated cart to localStorage
-    localStorage.setItem('cartItems', JSON.stringify(currentCart));
+    localStorage.setItem(`cartItems_${userEmail}`, JSON.stringify(currentCart));
 
     // Show success notification
     toast.success(`${product.title} has been added to your cart!`, {

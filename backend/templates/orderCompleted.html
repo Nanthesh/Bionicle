@@ -19,14 +19,38 @@
     }
     .order-details {
       margin: 20px 0;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+    }
+    .address-details {
+      margin-bottom: 20px;
+    }
+    .summary {
+      margin-top: 20px;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
     }
     .button {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color:#5D3FD3;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #5D3FD3;
+    color: white;
+    text-decoration: none; 
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button:hover {
+  color: white; /* Maintain white color on hover */
+  text-decoration: none; /* Ensure no underline on hover */
+}
+    .item {
+      margin-bottom: 10px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -35,17 +59,47 @@
     <div class="header">
       <h2>Order Confirmation</h2>
     </div>
+
     <p>Hello {{userName}},</p>
     <p>Your order has been completed successfully. Here are the details:</p>
+
     <div class="order-details">
       <h3>Order Details</h3>
       <p><strong>Order ID:</strong> {{orderId}}</p>
+      <p><strong>Order Date:</strong> {{orderDate}}</p>
+      <p><strong>Invoice Date:</strong> {{invoiceDate}}</p>
       <p><strong>Total Price:</strong> ${{totalPrice}}</p>
-      <p><strong>Shipping Address:</strong> {{shippingAddress}}</p>
     </div>
-    <a href="{{orderLink}}" class="button">View Order Details</a>
+
+    <div class="address-details">
+      <h3>Shipping Address</h3>
+      <p>{{shippingAddress}}</p>
+    </div>
+
+    <div class="order-details">
+      <h3>Products</h3>
+      {{#each products}}
+      <div class="item">
+        <p><strong>Description:</strong> {{title}}</p>
+        <p><strong>Quantity:</strong> {{quantity}}</p>
+        <p><strong>Unit Price:</strong> {{unitPrice}}</p>
+        <p><strong>Total:</strong> {{total}}</p>
+      </div>
+      <hr>
+      {{/each}}
+    </div>
+
+    <div class="summary">
+      <h3>Summary</h3>
+      <p><strong>Subtotal:</strong> {{subtotal}}</p>
+      <p><strong>Tax (13%):</strong> ${{taxAmount}}</p>
+      <p><strong>Shipping Charges:</strong> $0.00</p>
+      <p><strong>Total Payable:</strong> {{totalPrice}}</p>
+    </div>
+
     <p>Thank you for shopping with us!</p>
-    <footer style="text-align: center; margin-top: 20px;">
+
+    <footer class="footer">
       <small>&copy; 2024 The Bionicle. All rights reserved.</small>
     </footer>
   </div>

@@ -57,10 +57,11 @@ const Checkout = () => {
   
   const stripe = useStripe();
   const elements = useElements();
+  const userEmail = sessionStorage.getItem('userEmail');
 
   // Load cart items and total price
   useEffect(() => {
-    const storedItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const storedItems = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
     const total = storedItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2);
     setCartItems(storedItems);
     setTotalPrice(total);
@@ -68,7 +69,7 @@ const Checkout = () => {
 
   useEffect(() => {
     // Check if cart data exists in localStorage
-    const cartData = JSON.parse(localStorage.getItem('cartItems'));
+    const cartData = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`));
   
     // If cart is empty or null, redirect to the cart page
     if (!cartData || cartData.length === 0) {
@@ -216,12 +217,12 @@ const Checkout = () => {
       if (createOrderResponse.status === 201) {
         toast.success('Order placed successfully!');
         setOrderCompleted(true);
-        localStorage.removeItem('cartItems');
+        localStorage.removeItem(`cartItems_${userEmail}`);
       } else {
         toast.error('Order creation failed. Please try again.');
       }
     } catch (error) {
-      toast.error(`Order creation failed: ${error.message}`);
+      toast.error(`Order creation failed: ${error.response.data.error}`);
     }
   };
   
@@ -506,6 +507,10 @@ const Checkout = () => {
       <Typography>${totalPrice}</Typography>
     </ListItem>
     <ListItem>
+      <ListItemText primary="Shipping Charges" />
+      <Typography>$0.00</Typography>
+    </ListItem>
+    <ListItem>
       <ListItemText primary="Estimated GST/HST" />
       <Typography>${(totalPrice * 0.13).toFixed(2)}</Typography>
     </ListItem>
@@ -539,7 +544,7 @@ const Checkout = () => {
 
             {/* Navigation Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4, width: '100%', maxWidth: '900px' }}>
-              <Button onClick={handleBack}>Previous</Button>
+
               {activeStep < steps.length - 1 ? (
                 <Button onClick={handleNext}>Next</Button>
               ) : (
@@ -565,6 +570,7 @@ const Checkout = () => {
                 </Button>
               )}
             </Box>
+
           </>
         )}
       </Box>
