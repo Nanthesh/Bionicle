@@ -19,6 +19,8 @@ import ProductDetail from './pages/ProductDetail/ProductDetail';
 import Checkout from './pages/Checkout/Checkout';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import EnergyCalculation from './pages/EnergyCalculation/EnergyCalculation';
+import OrderHistory from './pages/Order/OrderHistory';
 
 const App = () => {
   const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
