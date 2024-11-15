@@ -92,13 +92,16 @@ const Wishlist = () => {
                     >
                       Add to Cart
                     </Button>
-                    <IconButton
+                    <Button
+                      variant="contained"
                       color="secondary"
-                      sx={{ position: 'absolute', top: 10, right: 10 }}
-                      onClick={() => handleRemoveFromWishlist(product.id)}
+                      sx={{ marginBottom: 2, width: '100%' }}
+                      onClick={() => {
+                        handleRemoveFromWishlist(product.id)
+                      }}
                     >
-                      <CloseIcon />
-                    </IconButton>
+                      Remove from wishlist
+                    </Button>
                   </CardContent>
                 </Card>
               </Grid>

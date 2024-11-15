@@ -1,21 +1,27 @@
-import React, { useState,useEffect  } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { styled, alpha } from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import InputBase from '@mui/material/InputBase';
-import Badge from '@mui/material/Badge';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  IconButton,
+  Typography,
+  InputBase,
+  Badge,
+  MenuItem,
+  Menu,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  Button,
+} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import AccountCircle from '@mui/icons-material/AccountCircle';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import { Dialog, DialogActions, DialogContent, DialogContentText, Button } from '@mui/material';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -57,204 +63,211 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function PrimarySearchAppBar({ setSearchQuery }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate(); // Initialize useNavigate hook
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
+
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const isUserMenuOpen = Boolean(userMenuAnchorEl);
   const userEmail = sessionStorage.getItem('userEmail');
+
   useEffect(() => {
-    
     const updateWishlistCount = () => {
       const wishlistItems = JSON.parse(localStorage.getItem(`wishlistItems${userEmail}`)) || [];
       setWishlistCount(wishlistItems.length);
     };
-  
-    // Initial fetch of wishlist count
+
     updateWishlistCount();
-  
-    // Listen for custom event
     window.addEventListener('wishlistUpdated', updateWishlistCount);
-  
-    // Cleanup event listener on component unmount
+
     return () => {
       window.removeEventListener('wishlistUpdated', updateWishlistCount);
     };
-  }, []);
+  }, [userEmail]);
 
   useEffect(() => {
     const updateCartCount = () => {
-      
       const cartItems = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
       const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
       setCartCount(totalQuantity);
     };
-  
-    // Initial fetch of cart count
+
     updateCartCount();
-  
-    // Listen for custom event 'cartUpdated'
     window.addEventListener('cartUpdated', updateCartCount);
-  
-    // Cleanup event listener on component unmount
+
     return () => {
       window.removeEventListener('cartUpdated', updateCartCount);
     };
-  }, []);
+  }, [userEmail]);
 
-  const handleOpenDialog = () => {
-    setOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpen(false);
-  };
-
-  const handleConfirmRedirect = () => {
-    setOpen(false);
-    navigate('/dashboard'); // Redirect on confirmation
+  const handleMobileMenuOpen = (event) => {
+    setMobileMoreAnchorEl(event.currentTarget);
   };
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
 
-  const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
+  const handleUserMenuOpen = (event) => {
+    setUserMenuAnchorEl(event.currentTarget);
   };
 
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value); // Pass search input to parent component
+  const handleUserMenuClose = () => {
+    setUserMenuAnchorEl(null);
   };
 
-  const handleClickCart = () => {
-    navigate('/cart');
+  const handleMenuClick = (action) => {
+    setUserMenuAnchorEl(null);
+    if (action === '/orders') {
+      navigate('/orders');
+    } else if (action === '/user-profile') {
+      navigate('/user-profile');
+    } else if (action === '/Signin') {
+      sessionStorage.clear();
+      navigate('/login');
+    }
   };
 
-  const handleClickFavourite = () => {
-    navigate('/wishlist'); // Navigate to the Wishlist page
-  };
-
-  const mobileMenuId = 'primary-search-account-menu-mobile';
-  const renderMobileMenu = (
+  const renderUserMenu = (
     <Menu
-      anchorEl={mobileMoreAnchorEl}
+      anchorEl={userMenuAnchorEl}
+      id="user-account-menu"
+      open={isUserMenuOpen}
+      onClose={handleUserMenuClose}
       anchorOrigin={{
         vertical: 'top',
         horizontal: 'right',
       }}
-      id={mobileMenuId}
-      keepMounted
       transformOrigin={{
         vertical: 'top',
         horizontal: 'right',
       }}
+    >
+      <MenuItem onClick={() => handleMenuClick('/orders')}>My Orders</MenuItem>
+      <MenuItem onClick={() => handleMenuClick('/user-profile')}>Profile</MenuItem>
+      <MenuItem onClick={() => handleMenuClick('/Signin')}>Log Out</MenuItem>
+    </Menu>
+  );
+
+  const renderMobileMenu = (
+    <Menu
+      anchorEl={mobileMoreAnchorEl}
+      id="primary-search-account-menu-mobile"
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
     >
-      <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit" onClick={handleClickCart}>
-          <Badge badgeContent={1} color="error">
+      <MenuItem onClick={() => navigate('/cart')}>
+        <IconButton size="large" aria-label="show cart items" color="inherit">
+          <Badge badgeContent={cartCount} color="error">
             <AddShoppingCartIcon />
           </Badge>
         </IconButton>
         <p>Cart</p>
       </MenuItem>
-      <MenuItem>
-        <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
-          <Badge badgeContent={7} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton size="large" aria-label="show wishlist" color="inherit" onClick={handleClickFavourite}>
+      <MenuItem onClick={() => navigate('/wishlist')}>
+        <IconButton size="large" aria-label="show wishlist items" color="inherit">
           <Badge badgeContent={wishlistCount} color="error">
             <FavoriteBorderIcon />
           </Badge>
         </IconButton>
         <p>Wishlist</p>
       </MenuItem>
+      <MenuItem onClick={handleUserMenuOpen}>
+        <IconButton
+          size="large"
+          edge="end"
+          aria-label="account of current user"
+          aria-controls="user-account-menu"
+          aria-haspopup="true"
+          color="inherit"
+        >
+          <AccountCircle />
+        </IconButton>
+        <p>Profile</p>
+      </MenuItem>
     </Menu>
   );
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+      <AppBar position="static" sx={{ backgroundColor: '#673ab7' }}>
+        <Toolbar>
           <Typography
             variant="h6"
             noWrap
             component="div"
-            sx={{ display: { xs: 'none', sm: 'block' }, color: 'white' }}
+            sx={{ display: { xs: 'none', sm: 'block' }, cursor: 'pointer' }}
+            onClick={() => setOpen(true)}
           >
-            <span
-              onClick={handleOpenDialog}
-              style={{ color: 'inherit', cursor: 'pointer', textDecoration: 'none' }}
-            >
-              Bionicle
-            </span>
+            Bionicle
           </Typography>
-
-          {/* Confirmation Dialog */}
-          <Dialog
-            open={open}
-            onClose={handleCloseDialog}
-            aria-labelledby="confirmation-dialog-title"
-            aria-describedby="confirmation-dialog-description"
-          >
-            <DialogContent>
-              <DialogContentText id="confirmation-dialog-description">
-                Are you sure you want to exit our product page?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseDialog} color="secondary">
-                Cancel
-              </Button>
-              <Button onClick={handleConfirmRedirect} color="primary" autoFocus>
-                Yes, exit
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-            <Search sx={{ width: { xs: '100%', sm: '60%', md: '40%' } }}>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ 'aria-label': 'search' }}
-                onChange={handleSearchChange} // Handle search input changes
-              />
-            </Search>
-          </Box>
-
+          {location.pathname === '/product_page' ? (
+            <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+              <Search>
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder="Search…"
+                  inputProps={{ 'aria-label': 'search' }}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </Search>
+            </Box>
+          ) : (
+            <Box sx={{ flexGrow: 1 }} /> // Placeholder Box
+          )}
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-          <IconButton size="large" aria-label="show cart items" color="inherit" onClick={handleClickCart}>
-             <Badge badgeContent={cartCount} color="error">
+            <IconButton
+              size="large"
+              aria-label="show cart items"
+              color="inherit"
+              onClick={() => navigate('/cart')}
+            >
+              <Badge badgeContent={cartCount} color="error">
                 <AddShoppingCartIcon />
               </Badge>
             </IconButton>
-            <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton size="large" aria-label="show wishlist" color="inherit" onClick={handleClickFavourite}>
+            <IconButton
+              size="large"
+              aria-label="show wishlist items"
+              color="inherit"
+              onClick={() => navigate('/wishlist')}
+            >
               <Badge badgeContent={wishlistCount} color="error">
                 <FavoriteBorderIcon />
               </Badge>
+            </IconButton>
+            <IconButton
+              size="large"
+              edge="end"
+              aria-label="account of current user"
+              aria-controls="user-account-menu"
+              aria-haspopup="true"
+              onClick={handleUserMenuOpen}
+              color="inherit"
+            >
+              <AccountCircle />
             </IconButton>
           </Box>
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
               aria-label="show more"
-              aria-controls={mobileMenuId}
+              aria-controls="primary-search-account-menu-mobile"
               aria-haspopup="true"
               onClick={handleMobileMenuOpen}
               color="inherit"
@@ -265,6 +278,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
         </Toolbar>
       </AppBar>
       {renderMobileMenu}
+      {renderUserMenu}
     </Box>
   );
 }

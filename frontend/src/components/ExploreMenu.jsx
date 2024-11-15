@@ -8,6 +8,8 @@ const menu_list = [
   { menu_name: 'TV', menu_image: 'https://m.media-amazon.com/images/I/91snjIt0nUL._AC_SX679_.jpg' },
   { menu_name: 'Doors', menu_image: 'https://m.media-amazon.com/images/I/71BLt4LbTIL._AC_UL320_.jpg' },
   { menu_name: 'Camera', menu_image: 'https://m.media-amazon.com/images/I/61NvMBwiPPL._AC_UL320_.jpg' },
+  { menu_name: 'Solar', menu_image: 'https://tse1.mm.bing.net/th?id=OIP.Fy5RBdx0GDHM7qntFS03jgHaEK&pid=Api&P=0&h=180' },
+  { menu_name: 'Smart Home', menu_image: 'https://tse1.mm.bing.net/th?id=OIP.k4pSDOmXBpdiNV4-HZERgwHaEK&pid=Api&P=0&h=180' },
 ];
 
 const ExploreMenu = ({ category, setCategory }) => {
