@@ -16,6 +16,7 @@ import { Button, Checkbox, FormControlLabel } from '@mui/material';
 import { signInWithGooglePopup } from "../../firebase.util";
 import GoogleLogo from "../../assets/google-logo.png";
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 // Define the regex patterns
 const lengthRegex = /.{8,}/;
@@ -25,6 +26,7 @@ const numberRegex = /[0-9]/;
 const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
 const onlyStringRegex = /^[a-zA-Z ]*$/;
 const onlyNumberRegex = /^[0-9]*$/;
+
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +41,7 @@ const Signup = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
-
+  const navigate = useNavigate();
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickShowConfirmPassword = () => setShowConfirmPassword((show) => !show);
   const handleMouseDownPassword = (event) => {
@@ -114,6 +116,7 @@ const Signup = () => {
 
         const response = await axios.post('http://localhost:4000/user/register', userData);
         console.log('Form submitted successfully:', response.data);
+        navigate('/signin');
       } catch (error) {
         console.error("Error during registration:", error);
       }
@@ -132,6 +135,7 @@ const Signup = () => {
       };
       const response = await axios.post('http://localhost:4000/user/register', googleUserData);
       console.log('Google user saved to database:', response.data);
+      navigate('/signin');
     } catch (error) {
       console.error("Error during Google Sign-In:", error);
     }

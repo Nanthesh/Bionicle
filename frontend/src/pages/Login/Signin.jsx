@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   TextField,
   Button,
@@ -20,6 +20,7 @@ import axios from 'axios';
 import { signInWithGooglePopup } from "../../firebase.util"; // Assuming this is a Firebase utility function
 import GoogleLogo from "../../assets/google-logo.png";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../components/AuthProvider';
 
 
 const Signin = () => {
@@ -32,6 +33,7 @@ const Signin = () => {
   const [apiError, setApiError] = useState('');
 
   const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuth(); 
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -42,6 +44,16 @@ const Signin = () => {
     setPassword(event.target.value);
     setPasswordError('');
   };
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    const hasNavigated = sessionStorage.getItem('hasNavigated');
+    if (token && !hasNavigated) {
+      console.log('Token found in sessionStorage, navigating to dashboard...');
+      sessionStorage.setItem('hasNavigated', 'true');
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -56,8 +68,14 @@ const Signin = () => {
       const response = await axios.post('http://localhost:4000/user/login', { email, password });
   
       // Handle successful login
+      
       console.log('Login successful:', response.data);
+  
       sessionStorage.setItem('token', response.data.token);
+      sessionStorage.setItem('userEmail', email);
+      if (setIsAuthenticated) {
+        setIsAuthenticated(true);
+      }
       navigate('/dashboard');
     } catch (error) {
       console.log('Full error object:', error); // Log the entire error object
@@ -101,10 +119,17 @@ const Signin = () => {
       // Store the token if it is returned
       const token = response.data.token;
       if (token) {
-        
+       
         sessionStorage.setItem('token', token);
         console.log("Google user logged in and token saved");
-        navigate('/dashboard');
+        sessionStorage.setItem('userEmail',user.email);
+        if (setIsAuthenticated) {
+          setIsAuthenticated(true);
+        }
+        // Add a small delay before navigation
+   
+      navigate('/dashboard');
+
       }
     } catch (error) {
       console.error("Error during Google Sign-In:", error);

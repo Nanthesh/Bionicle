@@ -12,9 +12,10 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [subtotal, setSubtotal] = useState(0);
   const navigate = useNavigate();
+  const userEmail = sessionStorage.getItem('userEmail');
 
   useEffect(() => {
-    const storedItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const storedItems = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
     setCartItems(storedItems);
     updateSubtotal(storedItems);
   }, []);
@@ -29,14 +30,14 @@ const Cart = () => {
       item.id === id ? { ...item, quantity: newQuantity } : item
     );
     setCartItems(updatedItems);
-    localStorage.setItem('cartItems', JSON.stringify(updatedItems));
+    localStorage.setItem(`cartItems_${userEmail}`, JSON.stringify(updatedItems));
     updateSubtotal(updatedItems);
   };
 
   const handleRemove = (id) => {
     const updatedItems = cartItems.filter((item) => item.id !== id);
     setCartItems(updatedItems);
-    localStorage.setItem('cartItems', JSON.stringify(updatedItems));
+    localStorage.setItem(`cartItems_${userEmail}`, JSON.stringify(updatedItems));
     updateSubtotal(updatedItems);
   };
 

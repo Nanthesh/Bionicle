@@ -63,10 +63,11 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
-  
+  const userEmail = sessionStorage.getItem('userEmail');
   useEffect(() => {
+    
     const updateWishlistCount = () => {
-      const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems')) || [];
+      const wishlistItems = JSON.parse(localStorage.getItem(`wishlistItems${userEmail}`)) || [];
       setWishlistCount(wishlistItems.length);
     };
   
@@ -84,7 +85,8 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
 
   useEffect(() => {
     const updateCartCount = () => {
-      const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+      
+      const cartItems = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
       const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
       setCartCount(totalQuantity);
     };

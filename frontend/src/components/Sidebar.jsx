@@ -217,6 +217,8 @@ const Sidebar = () => {
           to="/Signin"
           onClick={() => {
             sessionStorage.removeItem('token'); // Remove the token from sessionStorage
+            sessionStorage.removeItem('userEmail');
+            sessionStorage.removeItem('hasNavigated');
             handleClose();
           }}
           sx={{ paddingY: 1.5, paddingX: 2.5, display: 'flex', alignItems: 'center' }}

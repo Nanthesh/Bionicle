@@ -23,8 +23,22 @@ const productSchema = new mongoose.Schema({
     },
     stock_quantity: {
         type: Number,
+        required: 
+        true,
+    },
+    modelNumber: {
+        type: String,
         required: true,
-    }
+    },
+    voltage: {
+        type: Number,
+        required: true,
+    },
+    amp: {
+        type: Number,
+        required: true,
+    },
+    
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

@@ -37,8 +37,11 @@ const sendEmail = async (to, subject, templateName, dynamicData) => {
   };
 
   try {
-    await sgMail.send(msg);
+    console.log('Email message:', msg);
+    const response = await sgMail.send(msg);
     console.log(`Email sent to ${to}`);
+ 
+    console.log(`Email sent successfully to ${to}`, response);
   } catch (error) {
     console.error(`Error sending email: ${error.response?.body?.errors || error.message}`);
     throw error;

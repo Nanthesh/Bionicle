@@ -13,9 +13,10 @@ import { Link } from 'react-router-dom';
 export default function ProductCard({ title, description, image, price,id }) {
     const [isInWishlist, setIsInWishlist] = useState(false);
     const truncatedDescription = description.length > 100 ? description.slice(0, 100) + '...' : description;
+    const userEmail = sessionStorage.getItem('userEmail');
 
     useEffect(() => {
-        const currentWishlist = JSON.parse(localStorage.getItem('wishlistItems')) || [];
+        const currentWishlist = JSON.parse(localStorage.getItem(`wishlistItems${userEmail}`)) || [];
         const isAlreadyInWishlist = currentWishlist.some(item => item.id === id);
         setIsInWishlist(isAlreadyInWishlist);
       }, [id]);
@@ -23,13 +24,13 @@ export default function ProductCard({ title, description, image, price,id }) {
         event.stopPropagation();
         const product = { title, description, image, price, id };
       
-        const currentWishlist = JSON.parse(localStorage.getItem('wishlistItems')) || [];
+        const currentWishlist = JSON.parse(localStorage.getItem(`wishlistItems${userEmail}`)) || [];
         const isAlreadyInWishlist = currentWishlist.some(item => item.id === id);
       
         if (isAlreadyInWishlist) {
           // Remove from wishlist
           const updatedWishlist = currentWishlist.filter(item => item.id !== id);
-          localStorage.setItem('wishlistItems', JSON.stringify(updatedWishlist));
+          localStorage.setItem(`wishlistItems${userEmail}`, JSON.stringify(updatedWishlist));
           setIsInWishlist(false);
       
           // Emit custom event
@@ -43,7 +44,7 @@ export default function ProductCard({ title, description, image, price,id }) {
         } else {
           // Add to wishlist
           const updatedWishlist = [...currentWishlist, product];
-          localStorage.setItem('wishlistItems', JSON.stringify(updatedWishlist));
+          localStorage.setItem(`wishlistItems${userEmail}`, JSON.stringify(updatedWishlist));
           setIsInWishlist(true);
       
           // Emit custom event
@@ -62,7 +63,7 @@ export default function ProductCard({ title, description, image, price,id }) {
         const product = { title, description, image, price, id };
       
         // Get current cart items from localStorage
-        const currentCart = JSON.parse(localStorage.getItem('cartItems')) || [];
+        const currentCart = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
       
         // Check if the product is already in the cart
         const existingItem = currentCart.find(item => item.id === id);
@@ -76,7 +77,7 @@ export default function ProductCard({ title, description, image, price,id }) {
         }
       
         // Save updated cart to localStorage
-        localStorage.setItem('cartItems', JSON.stringify(currentCart));
+        localStorage.setItem(`cartItems_${userEmail}`, JSON.stringify(currentCart));
       
         // Notify user
         toast.success(`${title} has been added to your cart!`, {

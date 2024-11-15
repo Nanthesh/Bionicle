@@ -20,6 +20,8 @@ import Checkout from './pages/Checkout/Checkout';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import EnergyCalculation from './pages/EnergyCalculation/EnergyCalculation';
+import OrderHistory from './pages/Order/OrderHistory';
+
 const App = () => {
   const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
   return (
@@ -46,6 +48,7 @@ const App = () => {
           <Route path="/product_page/:productId" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
           <Route path="/checkout" element={<Elements stripe={stripePromise}><ProtectedRoute><Checkout /></ProtectedRoute></Elements>} />
           <Route path="/energycalculator" element={<EnergyCalculation/> }/>
+          <Route path="/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
         </Routes>
        </AuthProvider>
     </Router>
