@@ -205,7 +205,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ backgroundColor: '#673ab7' }}>
         <Toolbar>
-          <Typography
+          {/* <Typography
             variant="h6"
             noWrap
             component="div"
@@ -213,7 +213,7 @@ export default function PrimarySearchAppBar({ setSearchQuery }) {
             onClick={() => setOpen(true)}
           >
             Bionicle
-          </Typography>
+          </Typography> */}
           {location.pathname === '/product_page' ? (
             <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
               <Search>

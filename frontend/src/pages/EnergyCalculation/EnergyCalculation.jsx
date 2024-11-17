@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { TextField, Typography, Button, Container, Paper, Grid } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { TextField, Typography, Button, Container, Paper, Grid, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import axios from 'axios';
 import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
 
@@ -10,15 +11,48 @@ const EnergyCalculation = () => {
   const [costPerKwh, setCostPerKwh] = useState('');
   const [dailyCost, setDailyCost] = useState(null);
   const [monthlyCost, setMonthlyCost] = useState(null);
+  const [devices, setDevices] = useState([]); // State for the list of devices
+  const [selectedDevice, setSelectedDevice] = useState(''); // State for the selected device
 
-  const calculateCost = () => {
-    const watts = amps * volts;
-    const dailyConsumption = (watts * hoursPerDay) / 1000; // kWh per day
-    const dailyCostCalc = dailyConsumption * costPerKwh;
-    const monthlyCostCalc = dailyCostCalc * 30;
+  // Fetch devices when the component mounts
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/devices');
+        setDevices(response.data);
+      } catch (error) {
+        console.error('Error fetching devices:', error);
+      }
+    };
 
-    setDailyCost(dailyCostCalc.toFixed(2));
-    setMonthlyCost(monthlyCostCalc.toFixed(2));
+    fetchDevices();
+  }, []);
+
+  const handleDeviceSelection = (event) => {
+    const selected = devices.find(device => device.deviceName === event.target.value);
+    if (selected) {
+      setAmps(selected.amps || ''); // Ensure you have an 'amps' property in your backend data
+      setVolts(selected.voltage || ''); // Using 'voltage' from the backend data
+      setSelectedDevice(event.target.value);
+    }
+  };
+
+  const calculateCost = async () => {
+    try {
+      const response = await axios.post('http://localhost:4000/api/calculate-energy', {
+        amps,
+        voltage: volts,
+        hoursPerDay,
+        costPerKwh,
+      });
+
+      if (response.status === 200) {
+        setDailyCost((response.data.totalCost / 30).toFixed(2)); // Assuming the backend sends monthly cost, split to get daily cost
+        setMonthlyCost(response.data.totalCost);
+      }
+    } catch (error) {
+      console.error('Error calculating cost:', error);
+    }
   };
 
   return (
@@ -41,8 +75,25 @@ const EnergyCalculation = () => {
               <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                 Electricity Cost Calculator
               </Typography>
-              
+
               <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <FormControl fullWidth sx={{ marginBottom: '10px' }}>
+                    <InputLabel id="device-select-label">Select Device</InputLabel>
+                    <Select
+                      labelId="device-select-label"
+                      value={selectedDevice}
+                      onChange={handleDeviceSelection}
+                      label="Select Device"
+                    >
+                      {devices.map((device, index) => (
+                        <MenuItem key={index} value={device.deviceName}>
+                          {device.deviceName}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
                 <Grid item xs={12}>
                   <TextField
                     fullWidth

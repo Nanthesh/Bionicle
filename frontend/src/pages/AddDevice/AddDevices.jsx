@@ -1,6 +1,9 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import axios from 'axios';
+import Navbar from "../../components/Navbar";
+import Sidebar from '../../components/Sidebar';
+
 const AddDevice = () => {
 
     const [deviceName, setDeviceName] = useState(' ');
@@ -47,6 +50,9 @@ const AddDevice = () => {
         }
     };
   return (
+    <div> 
+     <Navbar/>
+     <Sidebar />
     <Container maxWidth="sm">
         <Box sx={{mt:4}}>
             <Typography variant='h4' component='h1' gutterBottom>
@@ -88,6 +94,7 @@ const AddDevice = () => {
         </Box>
         </Box>
     </Container>
+    </div>
   )
 };
 
