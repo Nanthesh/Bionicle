@@ -27,7 +27,6 @@ const Sidebar = () => {
     { text: 'Energy Dashboard', icon: <DashboardIcon />, link: '/dashboard' },
     { text: 'Energy Usage', icon: <TipsAndUpdatesIcon />, link: '/energyCalculator' },
     { text: 'Our-Products', icon: <SpaIcon />, link: '/product_page' },
-    { text: 'Energy Saving Tips', icon: <TipsAndUpdatesIcon />, link: '/energy-tips' },
     { text: 'Add Device', icon: <AddIcon />, link: '/add-device' },
     { text: 'Device Management', icon: <ManageSearchIcon />, link: '/device_management_page' }
   ];
@@ -112,33 +111,9 @@ const Sidebar = () => {
             </ListItem>
           ))}
 
-          {isSidebarOpen && (
-            <ListSubheader sx={{ backgroundColor: 'white', color: '#4a4a4a' }}>
-              Community
-            </ListSubheader>
-          )}
+         
 
-          <ListItem
-            button
-            component={Link}
-            to="/community"
-            onClick={() => handleItemClick('/community')}
-            sx={{
-              textDecoration: 'none',
-              color: activeItem === '/community' ? 'white' : 'black',
-              backgroundColor: activeItem === '/community' ? '#673ab7' : 'transparent',
-              '&:hover': {
-                backgroundColor: '#673ab7',
-                color: 'white',
-              },
-              justifyContent: isSidebarOpen ? 'flex-start' : 'center'
-            }}
-          >
-            <ListItemIcon sx={{ color: activeItem === '/community' ? 'white' : 'black' }}>
-              <ForumIcon />
-            </ListItemIcon>
-            {isSidebarOpen && <ListItemText primary="Forums" />}
-          </ListItem>
+
         </List>
 
         <Box sx={{ position: 'absolute', bottom: 0, width: '100%', padding: 1 }}>
