@@ -41,6 +41,11 @@ const AddressForm = ({ setAddressData, setErrorCount, validateAllFieldsExternal 
 
     if (!value || value.trim() === '') {
       error = `${field.charAt(0).toUpperCase() + field.slice(1)} is required.`;
+    } else if (field === 'firstName' || field === 'lastName') {
+      const nameRegex = /^[a-zA-Z]+$/;
+      if (!nameRegex.test(value)) {
+        error = `${field.charAt(0).toUpperCase() + field.slice(1)} can only contain alphabetic characters.`;
+      }
     } else if (field === 'country') {
       const countryExists = countries.some((country) => country.label === value);
       if (!countryExists) {
