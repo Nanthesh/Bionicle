@@ -22,10 +22,11 @@ const createOrder = async (req, res) => {
           error: 'All fields in shipping_address are required: address, city, state, zipCode, country.',
         });
     }
-    await redisClient.del(`orders:${req.user.id}`);
+    await redisClient.flushdb();
+   // await redisClient.del(`orders:${req.user.id}`);
     console.log(`orders:${req.user.id}`);
-    await redisClient.del('products:/api/products')
-    await redisClient.del(`orders:${req.user.id}:current`);
+    //await redisClient.del('products:/api/products')
+   // await redisClient.del(`orders:${req.user.id}:current`);
     res.status(201).json({ message: 'Order created successfully', order: newOrder });
   } catch (error) {
     res.status(400).json({ message: 'Error creating order', error: error.message });

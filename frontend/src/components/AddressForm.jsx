@@ -1,6 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Grid, FormControl, FormLabel, OutlinedInput, Typography, Box, Alert } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+  Grid,
+  FormControl,
+  FormLabel,
+  OutlinedInput,
+  Typography,
+  Box,
+  Alert,
+} from '@mui/material';
 import { styled } from '@mui/system';
 import { toast } from 'react-toastify';
 import { countries, usStates, canadianProvinces } from '../pages/UserProfile/countryData';
@@ -10,7 +17,7 @@ const FormGrid = styled(Grid)(() => ({
   flexDirection: 'column',
 }));
 
-const AddressForm = ({ setAddressData, setErrorCount }) => {
+const AddressForm = ({ setAddressData, setErrorCount, validateAllFieldsExternal }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -20,113 +27,92 @@ const AddressForm = ({ setAddressData, setErrorCount }) => {
     zip: '',
     country: '',
   });
+
+  const [errors, setErrors] = useState({});
+  const [touchedFields, setTouchedFields] = useState({});
+
   useEffect(() => {
     setAddressData(formData);
   }, [formData, setAddressData]);
-  const [errors, setErrors] = useState({});
-  const [isDataFetched, setIsDataFetched] = useState(false);
 
-  // Fetch user profile data solo una vez
-  useEffect(() => {
-    if (isDataFetched) return;
+  // Field-specific validation
+  const validateField = (field, value) => {
+    let error = '';
 
-    const fetchProfileData = async () => {
-      const token = sessionStorage.getItem('token');
-      if (!token) {
-        toast.error('User is not authenticated. Please log in.');
-        return;
+    if (!value || value.trim() === '') {
+      error = `${field.charAt(0).toUpperCase() + field.slice(1)} is required.`;
+    } else if (field === 'country') {
+      const countryExists = countries.some((country) => country.label === value);
+      if (!countryExists) {
+        error = 'Selected country is not valid.';
       }
-      try {
-        const response = await axios.get('http://localhost:4000/api/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = response.data;
-
-        const updatedData = {
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          address1: data.address || '',
-          city: data.city || '',
-          state: data.state || '',
-          zip: data.zipCode || '',
-          country: data.country || '',
-        };
-
-        setFormData(updatedData);
-        setAddressData(updatedData);
-        setIsDataFetched(true); 
-        validateFields(updatedData);
-      } catch (error) {
-        toast.error('Failed to load user profile. Please try again later.');
+    } else if (field === 'state' && formData.country === 'Canada') {
+      const stateExists = canadianProvinces.some((province) => province.label === value);
+      if (!stateExists) {
+        error = 'Selected province is not valid for Canada.';
       }
-    };
-
-    fetchProfileData();
-  }, [setAddressData, isDataFetched]);
-
-
-  const validateFields = (data = formData) => {
-    const newErrors = {};
-
-    
-
-  Object.keys(data).forEach((field) => {
-    if (!data[field] || data[field].trim() === '') {
-      newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required.`;
+    } else if (field === 'state' && formData.country === 'United States') {
+      const stateExists = usStates.some((state) => state.label === value);
+      if (!stateExists) {
+        error = 'Selected state is not valid for the United States.';
+      }
+    } else if (field === 'zip') {
+      if (formData.country === 'Canada') {
+        const postalCodeRegex = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
+        if (!postalCodeRegex.test(value)) {
+          error = 'Invalid Canadian postal code format (e.g., A1A 1A1).';
+        }
+      } else if (formData.country === 'United States') {
+        const zipCodeRegex = /^\d{5}(-\d{4})?$/;
+        if (!zipCodeRegex.test(value)) {
+          error = 'Invalid U.S. ZIP code format (e.g., 12345 or 12345-6789).';
+        }
+      } else {
+        const generalPostalCodeRegex = /^[A-Za-z0-9\s\-]*$/;
+        if (!generalPostalCodeRegex.test(value)) {
+          error = 'Invalid postal code format.';
+        }
+      }
     }
-  });
 
-
-  const countryExists = countries.some((country) => country.label === data.country);
-  if (!countryExists) {
-    newErrors.country = 'Selected country is not valid.';
-  }
-
-  if (data.country === 'Canada') {
-    const stateExists = canadianProvinces.some((province) => province.label === data.state);
-    if (!stateExists) {
-      newErrors.state = 'Selected province is not valid for Canada.';
-    }
-  } else if (data.country === 'United States') {
-    const stateExists = usStates.some((state) => state.label === data.state);
-    if (!stateExists) {
-      newErrors.state = 'Selected state is not valid for the United States.';
-    }
-  }
-  if (data.country === 'Canada') {
-    const postalCodeRegex = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
-    if (!postalCodeRegex.test(data.zip)) {
-      newErrors.zip = 'Invalid Canadian postal code format (e.g., A1A 1A1).';
-    }
-  } else if (data.country === 'United States') {
-    const zipCodeRegex = /^\d{5}(-\d{4})?$/;
-    if (!zipCodeRegex.test(data.zip)) {
-      newErrors.zip = 'Invalid U.S. ZIP code format (e.g., 12345 or 12345-6789).';
-    }
-  } else {
-
-    const generalPostalCodeRegex = /^[A-Za-z0-9\s\-]*$/;
-    if (!generalPostalCodeRegex.test(data.zip)) {
-      newErrors.zip = 'Invalid postal code format.';
-    }
-  }
-
-
-    setErrors(newErrors);
-    const errorCount = Object.keys(newErrors).length;
-    console.log("Error count:", errorCount);
-
-
-    setErrorCount(errorCount);
+    return error;
   };
 
+  // Validate all fields (for "Next" button)
+  const validateAllFields = () => {
+    const newErrors = {};
+    Object.keys(formData).forEach((field) => {
+      const fieldError = validateField(field, formData[field]);
+      if (fieldError) {
+        newErrors[field] = fieldError;
+      }
+    });
 
+    setErrors(newErrors);
+    setErrorCount(Object.keys(newErrors).length);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Register external validation function
+  useEffect(() => {
+    if (validateAllFieldsExternal) {
+      validateAllFieldsExternal(validateAllFields);
+    }
+  }, [validateAllFieldsExternal]);
+
+  // Handle field changes and validation
   const handleFieldChange = (field) => (event) => {
-    const updatedData = { ...formData, [field]: event.target.value };
+    const value = event.target.value;
+    const updatedData = { ...formData, [field]: value };
     setFormData(updatedData);
     setAddressData(updatedData);
 
-    validateFields(updatedData);
+    // Mark field as touched
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+
+    // Validate only the field being changed
+    const fieldError = validateField(field, value);
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: fieldError }));
   };
 
   return (
@@ -157,7 +143,7 @@ const AddressForm = ({ setAddressData, setErrorCount }) => {
               required
               error={Boolean(errors[field])}
             />
-            {errors[field] && <Alert severity="error">{errors[field]}</Alert>}
+            {touchedFields[field] && errors[field] && <Alert severity="error">{errors[field]}</Alert>}
           </FormGrid>
         ))}
       </Grid>

@@ -39,6 +39,9 @@ export default function UserProfile() {
   const [emailError, setEmailError] = useState('');
   const [phone_numberError, setphone_numberError] = useState('');
   const [zipCodeError, setZipCodeError] = useState('');
+  const [firstNameError, setFirstNameError] = useState('');
+  const [lastNameError, setLastNameError] = useState('');
+
 
 
   useEffect(() => {
@@ -92,6 +95,10 @@ export default function UserProfile() {
 
     if (field === 'userName') {
         setuserNameError(/^[a-zA-Z0-9]*$/.test(value) ? '' : 'Alphanumeric characters only');
+      } else if (field === 'firstName') {
+        setFirstNameError(/^[a-zA-Z]+$/.test(value) ? '' : 'Only alphabetic characters are allowed.');
+      } else if (field === 'lastName') {
+        setLastNameError(/^[a-zA-Z]+$/.test(value) ? '' : 'Only alphabetic characters are allowed.');
       } else if (field === 'email') {
         setEmailError(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Please enter a valid email address.');
       } else if (field === 'phone_number') {
@@ -288,62 +295,46 @@ export default function UserProfile() {
 
           <Grid container spacing={2}>
             {/* userName */}
-            <FormGrid size={{ xs: 12 }}>
-              <FormLabel htmlFor="userName" required>
-                userName
-              </FormLabel>
-              <OutlinedInput
-                id="userName"
-                name="userName"
-                placeholder="userName"
-                fullWidth
-                required
-                value={formData.userName}
-                onChange={handleFieldChange('userName')}
-                error={Boolean(userNameError)}
-                size="small"
-                sx={{ borderRadius: '10px' }}
-                readOnly={!editMode}
-              />
-              {userNameError && <Typography variant="body2" color="error">{userNameError}</Typography>}
-            </FormGrid>
-
-            {/* First Name and Last Name */}
-            <FormGrid size={{ xs: 12, md: 6 }}>
-              <FormLabel htmlFor="first-name" required>
-                First Name
-              </FormLabel>
-              <OutlinedInput
-                id="first-name"
-                name="first-name"
-                placeholder="First Name"
-                fullWidth
-                required
-                value={formData.firstName}
-                onChange={handleFieldChange('firstName')}
-                size="small"
-                sx={{ borderRadius: '10px' }}
-                readOnly={!editMode}
-              />
-            </FormGrid>
 
             <FormGrid size={{ xs: 12, md: 6 }}>
-              <FormLabel htmlFor="last-name" required>
-                Last Name
-              </FormLabel>
-              <OutlinedInput
-                id="last-name"
-                name="last-name"
-                placeholder="Last Name"
-                fullWidth
-                required
-                value={formData.lastName}
-                onChange={handleFieldChange('lastName')}
-                size="small"
-                sx={{ borderRadius: '10px' }}
-                readOnly={!editMode}
-              />
-            </FormGrid>
+            <FormLabel htmlFor="first-name" required>
+              First Name
+            </FormLabel>
+            <OutlinedInput
+              id="first-name"
+              name="first-name"
+              placeholder="First Name"
+              fullWidth
+              required
+              value={formData.firstName}
+              onChange={handleFieldChange('firstName')}
+              error={Boolean(firstNameError)}
+              size="small"
+              sx={{ borderRadius: '10px' }}
+              readOnly={!editMode}
+            />
+            {firstNameError && <Typography variant="body2" color="error">{firstNameError}</Typography>}
+          </FormGrid>
+
+          <FormGrid size={{ xs: 12, md: 6 }}>
+            <FormLabel htmlFor="last-name" required>
+              Last Name
+            </FormLabel>
+            <OutlinedInput
+              id="last-name"
+              name="last-name"
+              placeholder="Last Name"
+              fullWidth
+              required
+              value={formData.lastName}
+              onChange={handleFieldChange('lastName')}
+              error={Boolean(lastNameError)}
+              size="small"
+              sx={{ borderRadius: '10px' }}
+              readOnly={!editMode}
+            />
+            {lastNameError && <Typography variant="body2" color="error">{lastNameError}</Typography>}
+          </FormGrid>
 
             {/* Email */}
             <FormGrid size={{ xs: 12, md: 6 }}>

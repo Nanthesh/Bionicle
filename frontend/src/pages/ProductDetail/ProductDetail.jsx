@@ -15,6 +15,7 @@ const ProductDetail = () => {
   const [error, setError] = useState(null);
   const myRef = React.createRef();
   const [searchQuery, setSearchQuery] = useState('');
+  const userEmail = sessionStorage.getItem('userEmail');
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -58,7 +59,7 @@ const ProductDetail = () => {
     }
   
     // Get the current cart items from localStorage
-    const currentCart = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const currentCart = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
     console.log('Current cart before update:', currentCart);
   
     // Find if the product is already in the cart
@@ -81,7 +82,7 @@ const ProductDetail = () => {
     }
   
     // Save the updated cart to localStorage
-    localStorage.setItem('cartItems', JSON.stringify(currentCart));
+    localStorage.setItem(`cartItems_${userEmail}`, JSON.stringify(currentCart));
     console.log('Updated cart:', currentCart);
   
     // Show success notification

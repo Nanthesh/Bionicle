@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const validateToken = async () => {
       const token = sessionStorage.getItem('token');
-      const publicRoutes = ['/signin', '/Signup', '/forgot-password', '/reset-password'];
+      const publicRoutes = ['/signin', '/Signup', '/ForgotPassword', '/reset-password'];
 
       // Check if the user is on a public route
       const isPublicRoute = publicRoutes.some((route) =>

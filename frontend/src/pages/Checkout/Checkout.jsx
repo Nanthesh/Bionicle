@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef  } from 'react';
 import {
   Box,
   Button,
@@ -54,6 +54,7 @@ const Checkout = () => {
   const [error, setError] = useState(null);
   const [orderCompleted, setOrderCompleted] = useState(false);
   const navigate = useNavigate();
+  const validateAllFieldsRef = useRef(null);
   
   const stripe = useStripe();
   const elements = useElements();
@@ -79,13 +80,16 @@ const Checkout = () => {
   }, [activeStep]);
 
   const handleNext = () => {
-    console.log("Error count in handleNext:", errorCount);
-    if (errorCount > 0) {
-      toast.error('Please fill in all required fields before proceeding.');
-      return;
+    if (activeStep === 0) {
+      // Trigger address form validation
+      if (validateAllFieldsRef.current && !validateAllFieldsRef.current()) {
+        toast.error('Please correct the errors in the address form before proceeding.');
+        return;
+      }
     }
     setActiveStep((prevStep) => prevStep + 1);
   };
+
   
   const handleBack = () => setActiveStep((prevStep) => prevStep - 1);
 
@@ -330,7 +334,9 @@ const Checkout = () => {
         ) : (
           <>
             {/* Step 0: Address Form */}
-            {activeStep === 0 && <AddressForm   setAddressData={setAddressData} setErrorCount={setErrorCount}  setActiveStep={setActiveStep} />}
+            {activeStep === 0 && <AddressForm   setAddressData={setAddressData} setErrorCount={setErrorCount}  setActiveStep={setActiveStep} validateAllFieldsExternal={(validateAllFields) => {
+                validateAllFieldsRef.current = validateAllFields;
+              }} />}
 
             {/* Step 1: Payment Form and Review Order */}
             {activeStep === 1 && (
