@@ -7,6 +7,7 @@ const CartItem = ({ product, onUpdate, onRemove }) => {
   const [quantity, setQuantity] = useState(product.quantity);
   const [isCustomQuantity, setIsCustomQuantity] = useState(product.quantity > 9);
   const [tempQuantity, setTempQuantity] = useState(product.quantity);
+  const userEmail = sessionStorage.getItem('userEmail');
   const checkStockAvailability = async (productId) => {
     try {
       const token = sessionStorage.getItem('token');
@@ -44,11 +45,11 @@ const CartItem = ({ product, onUpdate, onRemove }) => {
       onUpdate(product.id, newQuantity);
   
       // Update localStorage and emit custom event
-      const updatedItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+      const updatedItems = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
       const itemIndex = updatedItems.findIndex((item) => item.id === product.id);
       if (itemIndex !== -1) {
         updatedItems[itemIndex].quantity = newQuantity;
-        localStorage.setItem('cartItems', JSON.stringify(updatedItems));
+        localStorage.setItem(`cartItems_${userEmail}`, JSON.stringify(updatedItems));
         window.dispatchEvent(new Event('cartUpdated'));
       }
     }
@@ -88,11 +89,11 @@ const CartItem = ({ product, onUpdate, onRemove }) => {
         setQuantity(newQuantity);
         onUpdate(product.id, newQuantity);
   
-        const updatedItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        const updatedItems = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
         const itemIndex = updatedItems.findIndex((item) => item.id === product.id);
         if (itemIndex !== -1) {
           updatedItems[itemIndex].quantity = newQuantity;
-          localStorage.setItem('cartItems', JSON.stringify(updatedItems));
+          localStorage.setItem(`cartItems_${userEmail}`, JSON.stringify(updatedItems));
           window.dispatchEvent(new Event('cartUpdated'));
         }
   
@@ -116,9 +117,9 @@ const CartItem = ({ product, onUpdate, onRemove }) => {
     onRemove(product.id);
   
     // Update localStorage and emit custom event
-    const updatedItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const updatedItems = JSON.parse(localStorage.getItem(`cartItems_${userEmail}`)) || [];
     const filteredItems = updatedItems.filter((item) => item.id !== product.id);
-    localStorage.setItem('cartItems', JSON.stringify(filteredItems));
+    localStorage.setItem(`cartItems_${userEmail}`, JSON.stringify(filteredItems));
     window.dispatchEvent(new Event('cartUpdated'));
   };
 
