@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {  useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './components/AuthProvider';
 import Signup from './pages/Register/Signup';  
@@ -23,11 +23,12 @@ import EnergyCalculation from './pages/EnergyCalculation/EnergyCalculation';
 import OrderHistory from './pages/Order/OrderHistory';
 
 const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
   return (
     
     <Router>
-    <AuthProvider>
+    <AuthProvider value={{ isAuthenticated, setIsAuthenticated }}>
         <Routes>
           <Route path="/" element={<><CheckAuth /><Signin /></>} />
 

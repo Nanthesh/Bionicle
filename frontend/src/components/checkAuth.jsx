@@ -1,26 +1,18 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 
 const CheckAuth = () => {
-  const navigate = useNavigate();
+  const token = sessionStorage.getItem('token');
   const location = useLocation();
 
-  useEffect(() => {
-    const token = sessionStorage.getItem('token');
-    const publicRoutes = ['/signin', '/Signup', '/forgot-password', '/reset-password'];
+  const publicRoutes = ['/signin', '/signup', '/forgot-password', '/reset-password'];
+  const isPublicRoute = publicRoutes.some((route) => location.pathname.startsWith(route));
 
-    // Check if the current route is a public route
-    const isPublicRoute = publicRoutes.some((route) =>
-      location.pathname.startsWith(route)
-    );
+  if (!token && !isPublicRoute) {
+    return <Navigate to="/signin" />;
+  }
 
-    // If token exists and the current route is not public, redirect to dashboard
-    if (token && !isPublicRoute) {
-      navigate('/dashboard');
-    }
-  }, [navigate, location.pathname]);
-
-  return null;
+  return null; // Render nothing for valid cases
 };
 
 export default CheckAuth;

@@ -41,6 +41,7 @@ const Signup = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
+  const [touchedFields, setTouchedFields] = useState({});
   const navigate = useNavigate();
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickShowConfirmPassword = () => setShowConfirmPassword((show) => !show);
@@ -54,6 +55,11 @@ const Signup = () => {
       ...formValues,
       [name]: type === 'checkbox' ? checked : value,
     });
+  
+    setTouchedFields((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
   };
 
   const validatePassword = (password) => {
@@ -72,6 +78,8 @@ const Signup = () => {
       errors.username = "Username is required";
     } else if (!onlyStringRegex.test(formValues.username)) {
       errors.username = "Username must contain only letters";
+    } else if (/\s/.test(formValues.username)) {
+      errors.username = "Username cannot contain spaces";
     }
 
     if (!formValues.email) {
@@ -205,8 +213,8 @@ const Signup = () => {
             margin="normal"
             value={formValues.username}
             onChange={handleInputChange}
-            error={!!formErrors.username}
-            helperText={formErrors.username}
+            error={touchedFields.username&&!!formErrors.username}
+            helperText={touchedFields.username&&formErrors.username}
             sx={{ ...inputStyles }}
           />
           <TextField
@@ -218,12 +226,12 @@ const Signup = () => {
             margin="normal"
             value={formValues.email}
             onChange={handleInputChange}
-            error={!!formErrors.email}
-            helperText={formErrors.email}
+            error={touchedFields.email&&!!formErrors.email}
+            helperText={touchedFields.email&&formErrors.email}
             sx={{ ...inputStyles }}
           />
 
-          <FormControl fullWidth variant="outlined" margin="normal" error={!!formErrors.password}>
+          <FormControl fullWidth variant="outlined" margin="normal" error={touchedFields.password&&!!formErrors.password}>
             <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
@@ -246,14 +254,14 @@ const Signup = () => {
               label="Password"
               sx={{ ...inputStyles }}
             />
-            {formErrors.password && (
+            {touchedFields.password&&formErrors.password && (
               <Typography variant="caption" color="error">
                 {formErrors.password}
               </Typography>
             )}
           </FormControl>
 
-          <FormControl fullWidth variant="outlined" margin="normal" error={!!formErrors.confirmPassword}>
+          <FormControl fullWidth variant="outlined" margin="normal" error={touchedFields.confirmPassword&&!!formErrors.confirmPassword}>
             <InputLabel htmlFor="outlined-adornment-confirm-password">Confirm Password</InputLabel>
             <OutlinedInput
               id="outlined-adornment-confirm-password"
@@ -276,7 +284,7 @@ const Signup = () => {
               label="Confirm Password"
               sx={{ ...inputStyles }}
             />
-            {formErrors.confirmPassword && (
+            {touchedFields.confirmPassword &&formErrors.confirmPassword && (
               <Typography variant="caption" color="error">
                 {formErrors.confirmPassword}
               </Typography>
@@ -292,7 +300,7 @@ const Signup = () => {
             margin="normal"
             value={formValues.phoneNumber}
             onChange={handleInputChange}
-            error={!!formErrors.phoneNumber}
+            error={touchedFields.phoneNumber&&!!formErrors.phoneNumber}
             helperText={formErrors.phoneNumber}
             sx={{ ...inputStyles }}
           />
@@ -309,7 +317,7 @@ const Signup = () => {
               label="I agree to the Terms and Conditions"
             />
           </Box>
-          {formErrors.agreeToTerms && (
+          {touchedFields.agreeToTerms&&formErrors.agreeToTerms && (
             <Typography variant="caption" color="error" textAlign="center" sx={{ display: "flex", justifyContent: "center" }}>
               {formErrors.agreeToTerms}
             </Typography>

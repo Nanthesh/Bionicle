@@ -102,7 +102,15 @@ export default function UserProfile() {
       } else if (field === 'email') {
         setEmailError(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Please enter a valid email address.');
       } else if (field === 'phone_number') {
-        setphone_numberError(/^\d+$/.test(value) ? '' :  'Please enter a valid phone number.');
+        if (!/^\d+$/.test(value)) {
+          setphone_numberError('Phone number must contain digits only.');
+        } else if (value.length < 10) {
+          setphone_numberError('Phone number must be at least 10 digits long.');
+        } else if (value.length > 15) {
+          setphone_numberError('Phone number must not exceed 15 digits.');
+        } else {
+          setphone_numberError('');
+        }
       } else if (field === 'zipCode') {
         validatePostalOrZipCode(value);
       }
@@ -126,6 +134,7 @@ export default function UserProfile() {
       isValid = generalRegex.test(value);
       setZipCodeError(isValid ? '' : 'Invalid postal/ZIP code format.');
     }
+    
   };
 
   const handleCountryChange = (event, newValue) => {
@@ -151,11 +160,12 @@ export default function UserProfile() {
         return;
       }
   
-      axios.get('http://localhost:4000/api/profile', {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
-        },
-      })
+      axios
+        .get('http://localhost:4000/api/profile', {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+          },
+        })
         .then((response) => {
           const data = response.data;
           setFormData({
@@ -166,7 +176,9 @@ export default function UserProfile() {
             lastName: data.lastName,
             address: data.address,
             city: data.city,
-            state: usStates.find((state) => state.label === data.state) || canadianProvinces.find((province) => province.label === data.state) || data.state,
+            state: usStates.find((state) => state.label === data.state) || 
+            canadianProvinces.find((province) => province.label === data.state) || 
+            { label: data.state || '', value: '' },
             zipCode: data.zipCode,
             country: countries.find((c) => c.label === data.country) || data.country,
           });
@@ -180,6 +192,14 @@ export default function UserProfile() {
           setSnackbarSeverity('error');
           setOpenSnackbar(true);
         });
+  
+      // Clear all error states when canceling
+      setuserNameError('');
+      setEmailError('');
+      setphone_numberError('');
+      setZipCodeError('');
+      setFirstNameError('');
+      setLastNameError('');
     }
   
     setEditMode(!editMode);
@@ -417,41 +437,37 @@ export default function UserProfile() {
             </FormGrid>
 
             <FormGrid size={{ xs: 12, md: 6 }}>
-  <FormLabel htmlFor="state" required>
-    {formData.country?.code === 'CA' ? 'Province' : formData.country?.code === 'US' ? 'State' : 'State/Province'}
-  </FormLabel>
-  {!editMode ? (
-    <Typography variant="body2" sx={{ padding: '8px 0' }}>
-      {formData.state?.label || formData.state || 'N/A'}
-    </Typography>
-  ) : (
-    (formData.country?.code === 'CA' || formData.country?.code === 'US') ? (
-      <Autocomplete
-        id="state"
-        options={regionOptions}
-        getOptionLabel={(option) => option.label}
-        value={formData.state}
-        onChange={(event, newValue) => setFormData({ ...formData, state: newValue || null })}
-        renderInput={(params) => (
-          <TextField {...params} placeholder={formData.country?.code === 'CA' ? 'Select Province' : 'Select State'} fullWidth size="small" />
-        )}
-        disabled={!editMode}
-      />
-    ) : (
-      <OutlinedInput
-        id="state"
-        name="state"
-        placeholder="State/Province"
-        fullWidth
-        value={formData.state || ''}
-        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-        size="small"
-        sx={{ borderRadius: '10px' }}
-        readOnly={!editMode}
-      />
-    )
-  )}
-</FormGrid>
+              <FormLabel htmlFor="state" required>
+                {formData.country?.code === 'CA' ? 'Province' : formData.country?.code === 'US' ? 'State' : 'State/Province'}
+              </FormLabel>
+              {!editMode ? (
+                <Typography variant="body2" sx={{ padding: '8px 0' }}>
+                  {formData.state?.label || 'N/A'} {/* Show the label in non-edit mode */}
+                </Typography>
+              ) : (
+                (formData.country?.code === 'CA' || formData.country?.code === 'US') ? (
+                  <Autocomplete
+                    id="state"
+                    options={regionOptions}
+                    getOptionLabel={(option) => option.label}
+                    value={regionOptions.find((option) => option.label === formData.state?.label) || null}
+                    onChange={(event, newValue) => setFormData({ ...formData, state: newValue || { label: '', value: '' } })}
+                    renderInput={(params) => <TextField {...params} placeholder="Select State/Province" fullWidth size="small" />}
+                  />
+                ) : (
+                  <OutlinedInput
+                    id="state"
+                    name="state"
+                    placeholder="State/Province"
+                    fullWidth
+                    value={formData.state?.label || ''}
+                    onChange={(e) => setFormData({ ...formData, state: { label: e.target.value, value: '' } })}
+                    size="small"
+                    sx={{ borderRadius: '10px' }}
+                  />
+                )
+              )}
+            </FormGrid>
 
   
             <FormGrid size={{ xs: 12, md: 6 }}>

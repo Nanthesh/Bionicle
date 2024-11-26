@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Typography, Button, Container, Paper, Grid, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import { TextField, Typography, Button, Container, Paper, Grid, Select, MenuItem, InputLabel, FormControl, FormHelperText } from '@mui/material';
 import axios from 'axios';
 import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
@@ -13,6 +13,10 @@ const EnergyCalculation = () => {
   const [monthlyCost, setMonthlyCost] = useState(null);
   const [devices, setDevices] = useState([]); // State for the list of devices
   const [selectedDevice, setSelectedDevice] = useState(''); // State for the selected device
+
+  // Error and touched states
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   // Fetch devices when the component mounts
   useEffect(() => {
@@ -37,7 +41,66 @@ const EnergyCalculation = () => {
     }
   };
 
+  const validateField = (name, value) => {
+    let error = '';
+
+    if (name === 'amps' || name === 'volts' || name === 'hoursPerDay' || name === 'costPerKwh') {
+      if (!value) {
+        error = 'This field is required.';
+      } else if (!/^\d+(\.\d+)?$/.test(value)) {
+        error = 'Only numeric values are allowed.';
+      }
+    }
+    if (name === 'hoursPerDay') {
+      if (!value) {
+        error = 'This field is required.';
+      } else if (!/^\d+$/.test(value)) {
+        error = 'Only numeric values are allowed.';
+      } else if (parseInt(value, 10) > 24) {
+        error = 'Hours per day cannot exceed 24.';
+      }
+    }
+
+    return error;
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched({ ...touched, [name]: true });
+    const error = validateField(name, value);
+    setErrors({ ...errors, [name]: error });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Update values
+    if (name === 'amps') setAmps(value);
+    if (name === 'volts') setVolts(value);
+    if (name === 'hoursPerDay') setHoursPerDay(value);
+    if (name === 'costPerKwh') setCostPerKwh(value);
+
+    // Re-validate the field on change
+    if (touched[name]) {
+      const error = validateField(name, value);
+      setErrors({ ...errors, [name]: error });
+    }
+  };
+
   const calculateCost = async () => {
+    const validationErrors = {
+      amps: validateField('amps', amps),
+      volts: validateField('volts', volts),
+      hoursPerDay: validateField('hoursPerDay', hoursPerDay),
+      costPerKwh: validateField('costPerKwh', costPerKwh),
+    };
+
+    setErrors(validationErrors);
+
+    if (Object.values(validationErrors).some((error) => error)) {
+      return; // Don't proceed if there are validation errors
+    }
+
     try {
       const response = await axios.post('http://localhost:4000/api/calculate-energy', {
         amps,
@@ -94,51 +157,63 @@ const EnergyCalculation = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
                     label="Amps"
+                    name="amps"
                     variant="outlined"
                     value={amps}
-                    onChange={(e) => setAmps(e.target.value)}
-                    type="number"
-                    sx={{ marginBottom: '10px' }}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={Boolean(errors.amps)}
+                    helperText={errors.amps}
                   />
                 </Grid>
+
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
                     label="Volts"
+                    name="volts"
                     variant="outlined"
                     value={volts}
-                    onChange={(e) => setVolts(e.target.value)}
-                    type="number"
-                    sx={{ marginBottom: '10px' }}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={Boolean(errors.volts)}
+                    helperText={errors.volts}
                   />
                 </Grid>
+
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
                     label="Hours per Day"
+                    name="hoursPerDay"
                     variant="outlined"
                     value={hoursPerDay}
-                    onChange={(e) => setHoursPerDay(e.target.value)}
-                    type="number"
-                    sx={{ marginBottom: '10px' }}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={Boolean(errors.hoursPerDay)}
+                    helperText={errors.hoursPerDay}
                   />
                 </Grid>
+
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
                     label="Cost per kWh ($)"
+                    name="costPerKwh"
                     variant="outlined"
                     value={costPerKwh}
-                    onChange={(e) => setCostPerKwh(e.target.value)}
-                    type="number"
-                    placeholder="e.g., 0.10"
-                    sx={{ marginBottom: '10px' }}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={Boolean(errors.costPerKwh)}
+                    helperText={errors.costPerKwh}
                   />
                 </Grid>
+
                 <Grid item xs={12} align="center">
                   <Button
                     variant="contained"
@@ -156,6 +231,7 @@ const EnergyCalculation = () => {
                     Calculate
                   </Button>
                 </Grid>
+
                 {dailyCost !== null && (
                   <Grid item xs={12} sx={{ textAlign: 'center', marginTop: '20px' }}>
                     <Typography variant="h6" color="secondary">

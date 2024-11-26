@@ -28,7 +28,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/', routes);
 app.use('/', profileRoutes);
 app.use('/api', routes);
-app.use('/api', deviceRoutes);
+app.use('/api/devices', deviceRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api', authRoutes);

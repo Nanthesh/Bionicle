@@ -53,6 +53,7 @@ const createOrderService = async (user_id, products, shipping_address) => {
         modelNumber: product.modelNumber,
         voltage: product.voltage,
         deviceType: product.category,
+        user_id:user_id,
       });
 
       await newDevice.save();
